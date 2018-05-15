@@ -81,16 +81,16 @@ a.post("/submit", h(async (req, res) => {
       });
     });
     
+    var response = "";
+    
     for( var i=0; i<req.body.payload.length; i++ ){
       let item = req.body.payload[i];
-      
-      var response = "";
       
       let row = await db.getUnverifiedApp(item.appid);
       
       if( row === null ){
         await db.addApp("_unverified", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime()/1000, u.id);
-        response+="Success: Thank you for adding data for app " + item.appid + "!\n";
+        response += "Success: Thank you for adding data for app " + item.appid + "!\n";
       } else {
         if( row.submitter == u.id ){
           response += "Warning: Already submitted data for " + row.appid + ". Skipping...\n";

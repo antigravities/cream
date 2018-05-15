@@ -8,6 +8,7 @@ provider:
 
 functions:
   cream:
+    memorySize: 256
     handler: cream.handler
     events:
       - http: ANY /
