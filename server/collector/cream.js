@@ -92,10 +92,10 @@ a.post("/submit", h(async (req, res) => {
         await db.addApp("_unverified", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime()/1000, u.id);
         response += "Success: Thank you for adding data for app " + item.appid + "!\n";
       } else {
-        if( row.submitter == u.id ){
-          response += "Warning: Already submitted data for " + row.appid + ". Skipping...\n";
-          continue;
-        }
+        //if( row.submitter == u.id ){
+        //  response += "Warning: Already submitted data for " + row.appid + ". Skipping...\n";
+        //  continue;
+        //}
         
         Object.keys(row).forEach((i) => {
           if( fields[i] === isBoolean ) row[i] = !(!row[i]); // lol
@@ -118,10 +118,10 @@ a.post("/submit", h(async (req, res) => {
         }
         
         if( ! wasUnverified ){
-          response += "Success: Thank you for verifying data for app " + item.appid + "!\n";
           await db.deleteApp("_unverified", item.appid);
           await db.deleteApp("", item.appid);
-          await db.addApp("", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime()/1000, u.id);
+          await db.addApp("", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime()/1000, row.submitter, u.id);
+          response += "Success: Thank you for verifying data for app " + item.appid + "!\n";
         }
       }
     }

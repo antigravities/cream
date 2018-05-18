@@ -12,6 +12,8 @@ class Database {
   
   async connect(){
     try {
+      config.mysql.charset = "utf8mb4";
+      console.log(config.mysql);
       this.connection = await this.MySQL.createConnection(config.mysql);
       this.isConnected = true;
     } catch(e){
@@ -67,8 +69,11 @@ class Database {
     return await this._first("SELECT * FROM apps_unverified WHERE appid = ?", [ app ]);
   }
   
-  async addApp(table, appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter){
-    return await this._query("INSERT INTO apps" + table + " (appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?)", [ appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter ])
+  async addApp(table, appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter, verifier){
+    var items = [ appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter ];
+    if( table == "" ) items.push(verifier);
+    
+    return await this._query("INSERT INTO apps" + table + " (appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter" + (table == "" ? ", verifier" : "") + ")" + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?" + ( table == "" ? ", ?" : "") + ")", items);
   }
   
   async deleteApp(table, appid){
