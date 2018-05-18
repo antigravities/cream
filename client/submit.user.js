@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.1
+// @version      0.2
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -12,14 +12,16 @@
 // @grant        unsafeWindow
 // ==/UserScript==
 
-/* global ShowConfirmDialog, GM_getValue, GM_setValue, GM_deleteValue, GM_xmlhttpRequest, history, ShowBlockingWaitDialog, ShowAlertDialog, ShowPromptDialog, jQuery */
+/* global ShowConfirmDialog, GM_getValue, GM_setValue, GM_deleteValue, GM_xmlhttpRequest, history, ShowBlockingWaitDialog, ShowAlertDialog, ShowPromptDialog, jQuery, Logout */
 
 (function(){
     var lambda;
     var key;
 
-    function error(){
-        ShowConfirmDialog("Cream Error", "Cream experienced an internal error.", "Close", "Reconfigure").fail(function(i){
+    function error(info){
+        if( info === undefined ) info = "Cream experienced an internal error.";
+
+        ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure").fail(function(i){
             GM_deleteValue("lambda");
             GM_deleteValue("apikey");
             history.go(0);
@@ -33,45 +35,58 @@
 
             logdiv.innerText = "Gathering data...";
 
-            var payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row")).map((i) => {
-                let g = {};
-                g.appid = parseInt(i.getAttribute("data-ds-appid"));
-                g.title = i.querySelector(".title").innerText.trim();
+            var payload;
 
-                let price;
+            try {
+                payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row")).map((i) => {
+                    let g = {};
+                    g.appid = parseInt(i.getAttribute("data-ds-appid"));
+                    g.title = i.querySelector(".title").innerText.trim();
 
-                g.oprice = i.querySelector(".search_price").innerText.trim().split("\n")[0];
-                g.oprice = isNaN(parseFloat(g.oprice.substring(1))) ? 0 : parseFloat(g.oprice.substring(1));
+                    let price;
 
-                if (i.querySelector(".search_price.discounted") === null) price = i.querySelector(".search_price").innerText.trim();
-                else price = i.querySelector(".search_price.discounted").innerText.split("\n")[1].trim();
+                    g.oprice = i.querySelector(".search_price").innerText.trim().split("\n")[0];
+                    g.oprice = isNaN(parseFloat(g.oprice.substring(1))) ? 0 : parseFloat(g.oprice.substring(1));
 
-                if (price.indexOf("Free") > -1) price = 0.00;
-                else if (price === "") price = -1;
-                else if (price[0] != "$") throw price;
-                else price = parseFloat(price.substring(1));
+                    if (i.querySelector(".search_price.discounted") === null) price = i.querySelector(".search_price").innerText.trim();
+                    else price = i.querySelector(".search_price.discounted").innerText.split("\n")[1].trim();
 
-                g.discount = parseInt(i.querySelector(".search_discount").innerText.replace("-", "").replace("%", ""));
-                g.discount = isNaN(g.discount) ? 0 : g.discount;
+                    if (price.indexOf("Free") > -1) price = 0.00;
+                    else if (price === "") price = -1;
+                    else if (price[0] != "$"){
+                        dialog.Dismiss();
+                        ShowConfirmDialog("Cream Error", "Your Steam Store prices are not in USD. Please log out and append ?cc=us&l=english to search URLs.", "Log out for me", "Close").done(function(){
+                            Logout();
+                            return;
+                        });
+                        throw price;
+                    }
+                    else price = parseFloat(price.substring(1));
 
-                g.windows = i.querySelector(".win") === null ? false : true;
-                g.macos = i.querySelector(".mac") === null ? false : true;
-                g.linux = i.querySelector(".linux") === null ? false : true;
+                    g.discount = parseInt(i.querySelector(".search_discount").innerText.replace("-", "").replace("%", ""));
+                    g.discount = isNaN(g.discount) ? 0 : g.discount;
 
-                g.htcvive = i.querySelector(".htcvive") === null ? false : true;
-                g.oculusrift = i.querySelector(".oculusrift") === null ? false : true;
-                g.windowsmr = i.querySelector(".windowsmr") === null ? false : true;
+                    g.windows = i.querySelector(".win") === null ? false : true;
+                    g.macos = i.querySelector(".mac") === null ? false : true;
+                    g.linux = i.querySelector(".linux") === null ? false : true;
 
-                let sum = i.querySelector(".search_review_summary");
-                if (sum === null) g.reviews = "Not enough reviews";
-                else g.reviews = sum.getAttribute("data-tooltip-html").split("<br>")[0];
+                    g.htcvive = i.querySelector(".htcvive") === null ? false : true;
+                    g.oculusrift = i.querySelector(".oculusrift") === null ? false : true;
+                    g.windowsmr = i.querySelector(".windowsmr") === null ? false : true;
 
-                g.releasedate = i.querySelector(".search_released").innerText;
+                    let sum = i.querySelector(".search_review_summary");
+                    if (sum === null) g.reviews = "Not enough reviews";
+                    else g.reviews = sum.getAttribute("data-tooltip-html").split("<br>")[0];
 
-                g.price = price;
+                    g.releasedate = i.querySelector(".search_released").innerText;
 
-                return g;
-            });
+                    g.price = price;
+
+                    return g;
+                });
+            } catch(e){
+                return;
+            }
 
             logdiv.innerText = "Submitting data for " + payload.length + " apps...";
 
@@ -91,10 +106,11 @@
                     "Content-Type": "application/json"
                 },
                 onload: function(data){
-                    console.log(data.responseText);
                     dialog.Dismiss();
                     try {
-                        ShowAlertDialog("Cream", JSON.parse(data.responseText).split("\n").join("<br>"));
+                        var rt = JSON.parse(data.responseText);
+                        if( rt === "Invalid API key" ) error(rt);
+                        else ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
                     } catch(e){
                         error();
                     }
@@ -121,7 +137,7 @@
             var elem = document.createElement("div");
             elem.setAttribute("class", "block");
 
-            elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to SteamSal.es</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a>";
+            elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a>";
             elem.addEventListener("click", scrape);
             jQuery(elem).insertBefore(jQuery(".rightcol").children()[0]);
         }
