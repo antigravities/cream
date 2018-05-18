@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.2
+// @version      0.2.1
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -140,6 +140,18 @@
             elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a>";
             elem.addEventListener("click", scrape);
             jQuery(elem).insertBefore(jQuery(".rightcol").children()[0]);
+
+            var resetButton = document.createElement("div");
+            resetButton.setAttribute("style", "display: inline");
+            resetButton.innerHTML = "<a href='#' id='reset_cream_button'>Reset Cream</a> &nbsp;|&nbsp; ";
+            jQuery(resetButton).insertBefore(jQuery(".valve_links").children()[0]);
+
+            document.getElementById("reset_cream_button").addEventListener("click", function(e){
+                e.preventDefault();
+                GM_deleteValue("lambda");
+                GM_deleteValue("apikey");
+                history.go(0);
+            });
         }
     });
 })();
