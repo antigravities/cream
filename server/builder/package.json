@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/antigravities/cream#readme",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "promise-mysql": "^3.2.1",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
     "steam-user": "^3.27.1"
   }
 }

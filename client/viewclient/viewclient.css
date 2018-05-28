@@ -1,0 +1,31 @@
+.appshowcase {
+  position: relative;
+}
+
+.discount, .price {
+  color: #a4d007;
+  background-color: #4c6b22;
+  position: absolute;
+  bottom: 0%;
+  right: 15px;
+  padding: 5px;
+  font-size: 15px;
+}
+
+.discount > img {
+  max-height: 116px;
+}
+
+.item-img {
+  float: left;
+  padding-right: 5px;
+  height: 60px;
+}
+
+.devpub, .tags {
+  font-size: 0.8em;
+}
+
+.price {
+  float: right;
+}

@@ -2,11 +2,15 @@ const fs = require("fs");
 const bot = new (require("steam-user"))();
 const MySQL = require("promise-mysql");
 const config = JSON.parse(fs.readFileSync("./config.json"));
+const request = require("request-promise");
+const cheerio = require("cheerio");
 
 bot.on("loggedOn", async () => {
   console.log("Logged on!");
   
   var cxn = await MySQL.createConnection(config.mysql);
+  
+  var finished = {};
   
   var l = await cxn.query("SELECT * FROM apps WHERE developer IS NULL OR publisher IS NULL");
   l = l.map(i => i.appid);
@@ -52,7 +56,22 @@ bot.on("loggedOn", async () => {
     obj[i.appid] = i;
   });
   
-  fs.writeFileSync("database.json", JSON.stringify(obj));
+  finished.apps = obj;
+  
+  finished.featured = [];
+  
+  try {
+    let rq = await request("https://store.steampowered.com/search/?filter=globaltopsellers");
+    let $ = cheerio.load(rq);
+    
+    $(".search_result_row").each((i, j) => {
+      if( $(j).attr("data-ds-appid") != null ) finished.featured.push($(j).attr("data-ds-appid").split(",")[0]);
+    });
+  } catch(e){
+    
+  }
+  
+  fs.writeFileSync("build.json", JSON.stringify(finished));
   
   cxn.end();
   bot.disconnect();
