@@ -139,7 +139,7 @@ a.post("/pick", h(async (req, res) => {
   let u = await db.getUserByApiKey(req.body.key);
   if( u === null ) return respond(res, false, "Invalid API key");
   
-  if( ! req.params.appId || isNaN(req.params.appId)) return respond(res, false, "Invalid appId to pick given.");
+  if( ! req.body.appId || isNaN(req.body.appId)) return respond(res, false, "Invalid appId to pick given.");
 
   let appId = Number(req.body.appId);
 
