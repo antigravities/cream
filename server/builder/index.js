@@ -71,6 +71,8 @@ bot.on("loggedOn", async () => {
     
   }
   
+  finished.recommendations = []; // TODO
+  
   fs.writeFileSync("build.json", JSON.stringify(finished));
   
   cxn.end();

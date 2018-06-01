@@ -25,6 +25,9 @@
           <li class="nav-item">
             <input type="text" name="q" class="form-control" placeholder="I'm looking for..."></input>
           </li>
+          <li class="nav-item">
+            <a href="#" data-toggle="modal" data-target="#about" class="nav-link">About</a>
+          </li>
         </ul>
       </div>
     </nav>
@@ -47,8 +50,38 @@
         </div>
       </div>
       <hr>
-      <h3 id="view">Contributor Recommendations</h3>
+      <h3 id="view">...</h3>
       <div class="container" id="list">
+      </div>
+    </div>
+    <div id="about" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">About SteamSal.es</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h2>Site tagline goes here.</h2>
+            <div>
+              Site info goes here.
+            </div>
+            <hr>
+            <h2>Credits</h2>
+            <div>
+              SteamSal.es is developed and financed by <a href="https://cutie.cafe/" target="_blank">Cutie Caf&eacute;</a> in association with <a href="https://steam.reddit.com/" target="_blank">/r/Steam</a>.
+            </div>
+            <br>
+            <div>
+              Data on SteamSal.es is provided by volunteers running our browser extension. We'd like to thank the following people for their contributions:
+              <div id="contributors" class="ui equal width grid">
+                
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </body>
