@@ -86,7 +86,7 @@ bot.on("loggedOn", async () => {
     
   }
   
-  finished.recommendations = []; // TODO
+  finished.recommendations = (await cxn.query("SELECT DISTINCT appid FROM user_pick")).map(i => i.appid);
   
   fs.writeFileSync("build.json", JSON.stringify(finished));
   

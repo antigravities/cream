@@ -88,6 +88,10 @@ class Database {
     return await this._query("SELECT userid, appid FROM user_pick WHERE appid = ?", [appId]);
   }
   
+  async getPicks(){
+    return await this._query("SELECT DISTINCT appid FROM user_pick");
+  }
+  
   async deleteApp(table, appid){
     return await this._query("DELETE FROM apps" + table + " WHERE appid = ?", [ appid ]);
   }
