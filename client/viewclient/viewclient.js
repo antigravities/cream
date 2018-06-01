@@ -1,4 +1,4 @@
-/* global $, fetch, cream */
+/* global $, fetch, cream, Fuse */
 
 cream = {};
 
@@ -22,23 +22,23 @@ cream.buildFeaturedWidget = (element, appid, app) => {
   `);
 };
 
-cream.buildFeatured = (build) => {
+cream.buildFeatured = () => {
   let chosenFeaturedApps = [];
   
   $(".appshowcase").each((i, j) => {
     let app = null;
     while( app === null ){
-      app = build.featured[Math.floor(Math.random()*build.featured.length)];
+      app = cream.build.featured[Math.floor(Math.random()*cream.build.featured.length)];
       if( chosenFeaturedApps.indexOf(app) > 0 ) app = null;
     }
     
     chosenFeaturedApps.push(app);
     
-    cream.buildFeaturedWidget(j, app, build.apps[app]);
+    cream.buildFeaturedWidget(j, app, cream.build.apps[app]);
   });
 };
 
-cream.buildQueryResult = (build, apps, view) => {
+cream.buildQueryResult = (apps, view) => {
   var html = "";
   apps.forEach((i, j) => {
     
@@ -46,19 +46,19 @@ cream.buildQueryResult = (build, apps, view) => {
       html += "<div class='row'>";
     }
     
-    let title = (build.apps[i] && build.apps[i].title) ? build.apps[i].title : "???";
-    let dev = (build.apps[i] && build.apps[i].developer ) ? build.apps[i].developer : "???";
-    let pub = (build.apps[i] && build.apps[i].publisher ) ? build.apps[i].publisher : "???";
-    let tags = (build.apps[i] && build.apps[i].tags ) ? build.apps[i].tags : "...";
+    let title = (cream.build.apps[i] && cream.build.apps[i].title) ? cream.build.apps[i].title : "???";
+    let dev = (cream.build.apps[i] && cream.build.apps[i].developer ) ? cream.build.apps[i].developer : "???";
+    let pub = (cream.build.apps[i] && cream.build.apps[i].publisher ) ? cream.build.apps[i].publisher : "???";
+    let tags = (cream.build.apps[i] && cream.build.apps[i].tags ) ? cream.build.apps[i].tags : "...";
     
     let discount = "???";
     
-    if( build.apps[i] ){
+    if( cream.build.apps[i] ){
       discount = "";
-      if( build.apps[i].price <= 0 ) discount = "<b>Free</b>";
+      if( cream.build.apps[i].price <= 0 ) discount = "<b>Free</b>";
       else {
-        if( build.apps[i].discount > 0 ) discount = `<b>-${build.apps[i].discount}%</b><br>`;
-        discount += `$${build.apps[i].price}`;
+        if( cream.build.apps[i].discount > 0 ) discount = `<b>-${cream.build.apps[i].discount}%</b><br>`;
+        discount += `$${cream.build.apps[i].price}`;
       }
     }
     
@@ -68,10 +68,10 @@ cream.buildQueryResult = (build, apps, view) => {
           <div class='price'>
             ${discount}
           </div>
-          <img class="item-img" src="https://steamcdn-a.akamaihd.net/steam/apps/${i}/header.jpg?t=${Date.now()}"></img>
+          <img class="item-img" src="https://steamcdn-a.akamaihd.net/steam/apps/${i}/header.jpg?t=${cream.lt}"></img>
           <div class='title'><b>${title}</b></div>
           <div class='devpub'>${dev} / ${pub}</div>
-          <span class='tags'>${tags}</span>
+          <div class='tags'>${tags}</div>
         </a>
       </div>
     `;
@@ -86,11 +86,46 @@ cream.buildQueryResult = (build, apps, view) => {
   $("#view").text(view);
 };
 
+cream.search = query => {
+  if( query.trim() !== "" ){
+    let res = cream.fuse.search(query);
+    cream.buildQueryResult(res.map(i => i.appid), "Search: " + query);
+  } else {
+    cream.buildQueryResult(Object.keys(cream.build.apps), "All Apps");
+  }
+};
+
 $(document).ready(async () => {
   let build = await fetch("build.json");
-  build = await build.json();
+  cream.build = await build.json();
+  
+  cream.lt = Date.now();
+  
+  cream.fuzzy = Object.values(cream.build.apps);
+  
+  cream.fuse = new Fuse(cream.fuzzy,
+    {
+      shouldSort: true,
+      threshold: 0.6,
+      location: 0,
+      distance: 100,
+      maxPatternLength: 32,
+      minMatchCharLength: 1,
+      keys: [
+        "appid",
+        "title",
+        "developer",
+        "publisher",
+        "tags"
+      ]
+    }
+  );
   
   cream.buildFeatured(build);
   //cream.buildQueryResult(build, build.recommendations ? build.recommendations : []);
-  cream.buildQueryResult(build, Object.keys(build.apps), "All Apps");
+  cream.buildQueryResult(Object.keys(cream.build.apps), "All Apps");
+  
+  $("#q").on("keyup", () => {
+    cream.search($("#q").val());
+  });
 });

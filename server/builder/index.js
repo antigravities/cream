@@ -12,7 +12,9 @@ bot.on("loggedOn", async () => {
   
   var finished = {};
   
-  var l = await cxn.query("SELECT * FROM apps WHERE developer IS NULL OR publisher IS NULL");
+  var tags = JSON.parse(fs.readFileSync("tags.json"));
+  
+  var l = await cxn.query("SELECT * FROM apps WHERE developer IS NULL OR publisher OR tags IS NULL");
   l = l.map(i => i.appid);
   
   if( l.length > 0 ){
@@ -35,7 +37,20 @@ bot.on("loggedOn", async () => {
             publisher = ci.appinfo.extended.publisher ? ci.appinfo.extended.publisher : "unknown";
           }
           
-          await cxn.query("UPDATE apps SET developer = ?, publisher = ? WHERE appid = ?", [ developer, publisher, appid ]);
+          let atags;
+          
+          try {
+            if( ! ci.appinfo || ! ci.appinfo.common || ! ci.appinfo.common.store_tags ){
+              atags = "no tags";
+            } else {
+              atags = Object.values(ci.appinfo.common.store_tags).map(tag => tags[tag] ? tags[tag] : "unknown tag").join(", ");
+            }
+          } catch(e){
+            console.log(e);
+            console.log(ci.appinfo.common.store_tags);
+          }
+          
+          await cxn.query("UPDATE apps SET developer = ?, publisher = ?, tags = ? WHERE appid = ?", [ developer, publisher, atags, appid ]);
         }
       
         resolve();

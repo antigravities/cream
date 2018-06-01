@@ -31,11 +31,11 @@
   float: right;
 }
 
-.title, .devpub {
+.title, .devpub, .tags {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 525px;
+  max-width: 471px;
 }
 
 .col-sm > a {
