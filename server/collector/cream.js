@@ -133,11 +133,7 @@ a.post("/submit", h(async (req, res) => {
   
 }));
 
-<<<<<<< HEAD
 a.post("/pick", h(async (req, res) => {
-=======
-a.post("/pick/:appId", h(async (req, res) => {
->>>>>>> db4c023ba08306f1d922c7a062680f50adab5ca2
   if( ! req.body || ! req.body.key ) return respond(res, false, "Missing API key");
   
   let u = await db.getUserByApiKey(req.body.key);
