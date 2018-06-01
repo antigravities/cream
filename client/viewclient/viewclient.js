@@ -106,7 +106,7 @@ $(document).ready(async () => {
   cream.fuse = new Fuse(cream.fuzzy,
     {
       shouldSort: true,
-      threshold: 0.6,
+      threshold: 0.4,
       location: 0,
       distance: 100,
       maxPatternLength: 32,
@@ -121,9 +121,9 @@ $(document).ready(async () => {
     }
   );
   
-  cream.buildFeatured(build);
-  //cream.buildQueryResult(build, build.recommendations ? build.recommendations : []);
-  cream.buildQueryResult(Object.keys(cream.build.apps), "All Apps");
+  cream.buildFeatured(cream.build);
+  cream.buildQueryResult(cream.build.recommendations ? cream.build.recommendations : [], "Recommended");
+  //cream.buildQueryResult(Object.keys(cream.build.apps), "All Apps");
   
   $("#q").on("keyup", () => {
     cream.search($("#q").val());
