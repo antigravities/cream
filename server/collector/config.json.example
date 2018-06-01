@@ -4,5 +4,6 @@
     "user": "",
     "password": "",
     "database": ""
-  }
+  },
+  "maxPicks": 3
 }
