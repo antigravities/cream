@@ -133,4 +133,37 @@ a.post("/submit", h(async (req, res) => {
   
 }));
 
+a.post("/app/:appId/pick", h(async (req, res) => {
+  if( ! req.body || ! req.body.key ) return respond(res, false, "Missing API key");
+  
+  let u = await db.getUserByApiKey(req.body.key);
+  if( u === null ) return respond(res, false, "Invalid API key");
+  
+  if( ! req.params.appId || isNaN(req.params.appId)) return respond(res, false, "Invalid appId to pick given.");
+
+  let appId = Number(req.params.appId);
+
+  try {
+    // Check if app exists
+    let app = await db.getUnverifiedApp(appId) || await db.getVerifiedApp(appId);
+
+    if (app === null) {
+      return respond(res, false, "Invalid App specified. Not yet in the database.");
+    }
+
+    // Check if user picked too much
+    let userPicks = await db.getPicksByUser(u.id);
+    if (userPicks.length >= global.config.maxPicks) {
+      return respond(res, false, "You already picked too many times.");
+    }
+
+    await db.addPick(u.id, appId);
+  } catch(e){
+    return respond(res, false, response + "\n\n" + "O nooooes! " + e);
+  }
+  
+  return respond(res, true, "Okay, added your pick.");
+  
+}));
+
 module.exports.handler = serverless(a);

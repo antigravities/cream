@@ -75,6 +75,18 @@ class Database {
     
     return await this._query("INSERT INTO apps" + table + " (appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter" + (table == "" ? ", verifier" : "") + ")" + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?" + ( table == "" ? ", ?" : "") + ")", items);
   }
+
+  async addPick(userId, appId) {
+    return await this._insert("INSERT INTO user_pick (userid, appid) VALUES (?, ?)", [userId, appId]);
+  }
+
+  async getPicksByUser(userId) {
+    return await this._query("SELECT userid, appid FROM user_pick WHERE userid = ?", [userId]);
+  }
+
+  async getPicksByApp(appId) {
+    return await this._query("SELECT userid, appid FROM user_pick WHERE appid = ?", [appId]);
+  }
   
   async deleteApp(table, appid){
     return await this._query("DELETE FROM apps" + table + " WHERE appid = ?", [ appid ]);
