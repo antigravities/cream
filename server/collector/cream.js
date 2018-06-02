@@ -139,6 +139,8 @@ a.post("/pick", h(async (req, res) => {
   let u = await db.getUserByApiKey(req.body.key);
   if( u === null ) return respond(res, false, "Invalid API key");
   
+  if( ! u.pick_override ) return respond(res, false, "You must have a Pick Override API key to do that");
+  
   if( ! req.body.appId || isNaN(req.body.appId)) return respond(res, false, "Invalid appId to pick given.");
 
   let appId = Number(req.body.appId);
@@ -151,13 +153,13 @@ a.post("/pick", h(async (req, res) => {
       return respond(res, false, "Invalid App specified. Not yet in the database.");
     }
 
-    if( ! u.pick_override ){
+    //if( ! u.pick_override ){
       // Check if user picked too much
-      let userPicks = await db.getPicksByUser(u.id);
-      if (userPicks.length >= global.config.maxPicks) {
-        return respond(res, false, "You already picked too many times.");
-      }
-    }
+    //  let userPicks = await db.getPicksByUser(u.id);
+    //  if (userPicks.length >= global.config.maxPicks) {
+    //    return respond(res, false, "You already picked too many times.");
+    //  }
+    //}
 
     await db.addPick(u.id, appId);
   } catch(e){
