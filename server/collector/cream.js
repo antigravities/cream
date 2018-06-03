@@ -92,10 +92,10 @@ a.post("/submit", h(async (req, res) => {
         await db.addApp("_unverified", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime()/1000, u.id);
         response += "Success: Thank you for adding data for app " + item.appid + "!\n";
       } else {
-        //if( row.submitter == u.id ){
-        //  response += "Warning: Already submitted data for " + row.appid + ". Skipping...\n";
-        //  continue;
-        //}
+        if( row.submitter == u.id ){
+          response += "Warning: Already submitted data for " + row.appid + ". Skipping...\n";
+          continue;
+        }
         
         Object.keys(row).forEach((i) => {
           if( fields[i] === isBoolean ) row[i] = !(!row[i]); // lol
@@ -109,7 +109,7 @@ a.post("/submit", h(async (req, res) => {
         let keys = Object.keys(row);
         
         for( let i=0; i<keys.length; i++ ){
-          if( keys[i] !== "submitter" && row[keys[i]] !== item[keys[i]]){
+          if( keys[i] !== "submitter" && keys[i] !== "releasedate" && [keys[i]] !== item[keys[i]]){
             response += "Warning: Verification failed for appid " + item.appid + ", field " + keys[i] + " (expected: " + row[keys[i]] + ", got: " + item[keys[i]] + "). Using your changes...\n";
             await db.deleteApp("_unverified", item.appid);
             await db.addApp("_unverified", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime()/1000, u.id);
@@ -168,6 +168,24 @@ a.post("/pick", h(async (req, res) => {
   
   return respond(res, true, "Okay, added your pick.");
   
+}));
+
+a.post("/unpick", h(async (req, res) => {
+  if( ! req.body || ! req.body.key ) return respond(res, false, "Missing API key");
+  
+  let u = await db.getUserByApiKey(req.body.key);
+  if( u === null ) return respond(res, false, "Invalid API key");
+  
+  if( ! u.pick_override ) return respond(res, false, "You must have a Pick Override API key to do that");
+  
+  if( ! req.body.appId || isNaN(req.body.appId)) return respond(res, false, "Invalid appId to unpick given.");
+
+  let appId = Number(req.body.appId);
+  
+  if( (await db.getPicksByApp(appId)).length === 0 ) return respond(res, false, "App was not picked.");
+  await db.removePickForApp(appId);
+  
+  return respond(res, true, "Okay, unpicked.");
 }));
 
 module.exports.handler = serverless(a);

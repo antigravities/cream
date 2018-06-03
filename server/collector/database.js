@@ -13,7 +13,6 @@ class Database {
   async connect(){
     try {
       config.mysql.charset = "utf8mb4";
-      console.log(config.mysql);
       this.connection = await this.MySQL.createConnection(config.mysql);
       this.isConnected = true;
     } catch(e){
@@ -90,6 +89,10 @@ class Database {
   
   async getPicks(){
     return await this._query("SELECT DISTINCT appid FROM user_pick");
+  }
+  
+  async unpick(appid){
+    return await this._query("DELETE FROM user_pick WHERE appid = ? LIMIT 1", [ appid ]);
   }
   
   async deleteApp(table, appid){

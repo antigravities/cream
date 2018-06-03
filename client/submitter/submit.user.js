@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.2.1
+// @version      0.2.2
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -38,7 +38,7 @@
             var payload;
 
             try {
-                payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row")).map((i) => {
+                payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row[data-ds-appid]")).map((i) => {
                     let g = {};
                     g.appid = parseInt(i.getAttribute("data-ds-appid"));
                     g.title = i.querySelector(".title").innerText.trim();
