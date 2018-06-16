@@ -2,7 +2,6 @@
 
 Array.prototype.isArray = true;
 
-const serverless = require("serverless-http");
 const express = require("express");
 const a = express();
 const h = require("express-async-handler");
@@ -200,4 +199,4 @@ a.post("/unpick", h(async(req, res) => {
   return respond(res, true, "Okay, unpicked.");
 }));
 
-module.exports.handler = serverless(a);
+a.listen(3000);
