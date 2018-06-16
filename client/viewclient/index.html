@@ -19,7 +19,7 @@
   </head>
   <body>
     <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">SteamSal.es</a>
+      <a class="navbar-brand filter" href="#" data-q="">SteamSal.es</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -27,6 +27,38 @@
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
             <input type="text" id="q" class="form-control" placeholder="I'm looking for..."></input>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Quick Filters
+            </a>
+            <div class="dropdown-menu container" id="quickfilters" aria-labelledby="navbarDropdown">
+              <div class="row">
+                <div class="col-sm">
+                  <h3>Genre</h3>
+                  <a href="#" class="filter" data-q="Action">Action</a><br>
+                  <a href="#" class="filter" data-q="Adventure">Adventure</a><br>
+                  <a href="#" class="filter" data-q="Indie">Indie</a><br>
+                  <a href="#" class="filter" data-q="Casual">Casual</a><br>
+                  <a href="#" class="filter" data-q="Simulation">Simulation</a><br>
+                  <a href="#" class="filter" data-q="Strategy">Strategy</a><br>
+                  <a href="#" class="filter" data-q="RPG">RPG</a><br>
+                  <a href="#" class="filter" data-q="Multiplayer">Multiplayer</a><br>
+                  <a href="#" class="filter" data-q="Early Access">Early Access</a><br>
+                  <a href="#" class="filter" data-q="Puzzle">Puzzle</a><br>
+                  <a href="#" class="filter" data-q="Atmospheric">Atmospheric</a>
+                </div>
+                <div class="col-sm">
+                  <h3>Discount</h3>
+                  <a href="#" class="filter" data-q="">I'm</a>
+                </div>
+                <div class="col-sm">
+                  <h3>Others</h3>
+                  <a href="#" class="filter" data-view="all">All Apps (warning: slow!)</a><br>
+                  <a href="#" class="filter" data-view="recommended">Volunteer-recommended</a>
+                </div>
+              </div>
+            </div>
           </li>
         </ul>
         <ul class="navbar-nav ml-auto">

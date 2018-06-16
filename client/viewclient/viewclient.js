@@ -91,7 +91,7 @@ cream.search = query => {
     let res = cream.fuse.search(query);
     cream.buildQueryResult(res.map(i => i.appid), "Search: " + query);
   } else {
-    cream.buildQueryResult(Object.keys(cream.build.apps), "All Apps");
+    cream.buildQueryResult(cream.build.recommendations ? cream.build.recommendations : [], "Recommended");
   }
 };
 
@@ -127,5 +127,19 @@ $(document).ready(async () => {
   
   $("#q").on("keyup", () => {
     cream.search($("#q").val());
+  });
+  
+  $(".filter[data-q]").on("click", e => {
+    $("#q").val($(e.currentTarget).data("q"));
+    cream.search($("#q").val());
+  });
+  
+  cream.views = {};
+  cream.views.all = Object.keys(cream.build.apps);
+  cream.views.recommended = cream.build.recommendations;
+  
+  $(".filter[data-view]").on("click", e => {
+    let view = $(e.currentTarget).data("view");
+    cream.buildQueryResult(cream.views[view], "View: " + view);
   });
 });
