@@ -24,20 +24,16 @@
   var automate;
   var delay = 3000; //delay of retrying and continuing
 
-  if(localStorage.getItem('automate') === undefined){
-      automate = localStorage.setItem('automate', 'false');
-  } else {
-      automate = localStorage.getItem('automate');
-  }
+  if(localStorage.getItem('automate') === undefined) automate = localStorage.setItem('automate', 'false'); 
+  else automate = localStorage.getItem('automate');
+  
   console.log("automate: "+automate);
 
   function error(info) {
     var autoMsg;
-    if(automate == 'true') {
-      autoMsg = "Retrying in "+delay+"ms";
-    } else {
-      autoMsg = "";
-    }
+    
+    if(automate == 'true') autoMsg = "Retrying in "+delay+"ms";
+    else autoMsg = "";
 
     if (info === undefined) info = "Cream experienced an internal error.<br>"+autoMsg;
 
@@ -47,29 +43,23 @@
       localStorage.setItem('automate', 'false');
       history.go(0);
     });
-    if(automate == 'true'){
-        setTimeout(scrape, delay);
-    }
+
+    if(automate == 'true') setTimeout(scrape, delay);
+    
   }
 
-  if(automate == 'true') {window.onload = next();}
+  if(automate == 'true') window.onload = next();
 
   function next() {
-    if(window.location.search.indexOf('&cc=us&l=english') == -1) {
-        window.location.search += '&cc=us&l=english';
-    } else {
-        setTimeout(scrape, delay);
-    }
+    if(window.location.search.indexOf('&cc=us&l=english') == -1) window.location.search += '&cc=us&l=english';
+    else setTimeout(scrape, delay);
   }
 
   function pressbtn(){ //next page
         var classes = document.getElementsByClassName('pagebtn');
         var rightbtn;
-        if(window.location.search.indexOf('page') == -1) {
-            rightbtn = classes[0];
-        } else {
-            rightbtn = classes[1];
-        }
+        if(window.location.search.indexOf('page') == -1) rightbtn = classes[0];
+        else rightbtn = classes[1];
         rightbtn.click();
         next();
     }
@@ -200,12 +190,12 @@
       auto.setAttribute("class", "block");
       var autoBtnMsg;
       if(automate == 'true') autoBtnMsg = "Stop";
-        else autoBtnMsg = "Automate";
+      else autoBtnMsg = "Automate";
       auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span>"+autoBtnMsg+"</span></a>";
       jQuery(auto).insertBefore(jQuery(".rightcol").children()[1]);
       auto.addEventListener("click", function (e) {
         if(automate == 'true') localStorage.setItem('automate', 'false');
-          else localStorage.setItem('automate', 'true');
+        else localStorage.setItem('automate', 'true');
         history.go(0);
       });
 
