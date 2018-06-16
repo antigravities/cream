@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.2.4
+// @version      0.2.5
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -21,6 +21,13 @@
 (function () {
   var lambda;
   var key;
+  var automate;
+  if(localStorage.getItem('automate') === undefined){
+      automate = localStorage.setItem('automate', 'false');
+  } else {
+      automate = localStorage.getItem('automate');
+  }
+  console.log(automate);
 
   function error(info) {
     if (info === undefined) info = "Cream experienced an internal error.";
@@ -28,10 +35,32 @@
     ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure").fail(function () {
       GM_deleteValue("lambda");
       GM_deleteValue("apikey");
+      localStorage.setItem('automate', 'false');
       history.go(0);
     });
+    if(automate == 'true'){
+        setTimeout(scrape, 3000);
+    }
   }
-
+    if(automate == 'true') {window.onload = next();}
+  function next() {
+    if(window.location.search.indexOf('&cc=us&l=english') == -1) {
+        window.location.search += '&cc=us&l=english';
+    } else {
+        setTimeout(scrape, 3000);
+    }
+}
+  function pressbtn(){ //next page
+        var classes = document.getElementsByClassName('pagebtn');
+        var rightbtn;
+        if(window.location.search.indexOf('page') == -1) {
+            rightbtn = classes[0];
+        } else {
+            rightbtn = classes[1];
+        }
+        rightbtn.click();
+        next();
+    }
   function scrape() {
     try {
       var dialog = ShowBlockingWaitDialog("Cream", "<p id='cream_status'></p>");
@@ -118,7 +147,10 @@
           try {
             var rt = JSON.parse(data.responseText);
             if (rt === "Invalid API key") error(rt);
-            else ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
+            else {
+                ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
+                if(automate == 'true') pressbtn();
+            }
           }
           catch (e) {
             error();
@@ -147,10 +179,26 @@
       key = GM_getValue("apikey");
       var elem = document.createElement("div");
       elem.setAttribute("class", "block");
-
       elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a>";
       elem.addEventListener("click", scrape);
       jQuery(elem).insertBefore(jQuery(".rightcol").children()[0]);
+
+      var auto = document.createElement("div");
+      auto.setAttribute("class", "block");
+      var isChecked;
+      if(automate == 'true'){
+          isChecked = "checked";
+      } else {
+          isChecked = "";
+      }
+      auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Automate</span></a>";
+      jQuery(auto).insertBefore(jQuery(".rightcol").children()[0]);
+      auto.addEventListener("click", function (e) {
+        localStorage.setItem('automate', 'true');
+        history.go(0);
+      });
+
+
 
       var resetButton = document.createElement("div");
       resetButton.setAttribute("style", "display: inline");
@@ -161,6 +209,7 @@
         e.preventDefault();
         GM_deleteValue("lambda");
         GM_deleteValue("apikey");
+        localStorage.setItem('automate', 'false');
         history.go(0);
       });
     }
