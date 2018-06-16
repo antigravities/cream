@@ -21,17 +21,20 @@
 (function () {
   var lambda;
   var key;
-  var automate;
+  var automate = localStorage.getItem('automate');
   var delay = 3000; //delay of retrying and continuing
+  var notUsd = localStorage.getItem('notUsd');
 
-  if(localStorage.getItem('automate') === undefined) automate = localStorage.setItem('automate', 'false'); 
-  else automate = localStorage.getItem('automate');
-  
+  if(localStorage.getItem('automate') === null) localStorage.setItem('automate', 'false');
+
+  if(localStorage.getItem('notUsd') === null) notUsd = localStorage.setItem('notUsd', 'false');
+
   console.log("automate: "+automate);
+  console.log("notUsd: "+notUsd);
 
   function error(info) {
     var autoMsg;
-    
+
     if(automate == 'true') autoMsg = "Retrying in "+delay+"ms";
     else autoMsg = "";
 
@@ -45,13 +48,13 @@
     });
 
     if(automate == 'true') setTimeout(scrape, delay);
-    
+
   }
 
   if(automate == 'true') window.onload = next();
 
   function next() {
-    if(window.location.search.indexOf('&cc=us&l=english') == -1) window.location.search += '&cc=us&l=english';
+    if((notUsd == 'true') && (window.location.search.indexOf('&cc=us&l=english') == -1)) window.location.search += '&cc=us&l=english';
     else setTimeout(scrape, delay);
   }
 
@@ -91,6 +94,8 @@
           else if (price === "") price = -1;
           else if (price.indexOf("Season") > -1) price = -1; // temporary workaround for Series apps
           else if (price[0] != "$") {
+            localStorage.setItem('notUsd', 'true');
+            localStorage.setItem('automate', 'false');
             dialog.Dismiss();
             ShowConfirmDialog("Cream Error", "Your Steam Store prices are not in USD. Please log out and append ?cc=us&l=english to search URLs.", "Log out for me", "Close").done(function () {
               Logout();
