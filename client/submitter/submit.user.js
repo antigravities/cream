@@ -33,22 +33,36 @@
   console.log("notUsd: "+notUsd);
 
   function error(info) {
-    var autoMsg;
+    var autoMsgTime;
+    var autoMsgBtn;
 
-    if(automate == 'true') autoMsg = "Retrying in "+delay+"ms";
-    else autoMsg = "";
+    if(automate == 'true') {
+        autoMsgTime = "Retrying in "+delay+"ms";
+        autoMsgBtn = "Stop retrying";
+    }
+    else autoMsgTime = "";
 
-    if (info === undefined) info = "Cream experienced an internal error.<br>"+autoMsg;
+    if (info === undefined) info = "Cream experienced an internal error.<br>"+autoMsgTime;
 
-    ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure").fail(function () {
+
+    var dialog = ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure", autoMsgBtn).done(function (choice) {
+        if ( choice != 'OK' ){
+            localStorage.setItem('automate', 'false');
+            location.reload();
+        }
+    }).fail(function () {
       GM_deleteValue("lambda");
       GM_deleteValue("apikey");
       localStorage.setItem('automate', 'false');
       history.go(0);
     });
 
-    if(automate == 'true') setTimeout(scrape, delay);
-
+    if(automate == 'true') {
+      setTimeout(function(){
+            document.querySelector(".btn_green_white_innerfade.btn_medium").click(); //Can't seem to find what to call to simply close.
+            scrape();
+          },delay);
+    }
   }
 
   if(automate == 'true') window.onload = next();
