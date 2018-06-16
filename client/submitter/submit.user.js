@@ -198,10 +198,14 @@
 
       var auto = document.createElement("div");
       auto.setAttribute("class", "block");
-      auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span>Automate</span></a>";
+      var autoBtnMsg;
+      if(automate == 'true') autoBtnMsg = "Stop";
+        else autoBtnMsg = "Automate";
+      auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span>"+autoBtnMsg+"</span></a>";
       jQuery(auto).insertBefore(jQuery(".rightcol").children()[1]);
       auto.addEventListener("click", function (e) {
-        localStorage.setItem('automate', 'true');
+        if(automate == 'true') localStorage.setItem('automate', 'false');
+          else localStorage.setItem('automate', 'true');
         history.go(0);
       });
 
