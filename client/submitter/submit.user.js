@@ -22,15 +22,24 @@
   var lambda;
   var key;
   var automate;
+  var delay = 3000; //delay of retrying and continuing
+
   if(localStorage.getItem('automate') === undefined){
       automate = localStorage.setItem('automate', 'false');
   } else {
       automate = localStorage.getItem('automate');
   }
-  console.log(automate);
+  console.log("automate: "+automate);
 
   function error(info) {
-    if (info === undefined) info = "Cream experienced an internal error.";
+    var autoMsg;
+    if(automate == 'true') {
+      autoMsg = "Retrying in "+delay+"ms";
+    } else {
+      autoMsg = "";
+    }
+
+    if (info === undefined) info = "Cream experienced an internal error.<br>"+autoMsg;
 
     ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure").fail(function () {
       GM_deleteValue("lambda");
@@ -39,17 +48,20 @@
       history.go(0);
     });
     if(automate == 'true'){
-        setTimeout(scrape, 3000);
+        setTimeout(scrape, delay);
     }
   }
-    if(automate == 'true') {window.onload = next();}
+
+  if(automate == 'true') {window.onload = next();}
+
   function next() {
     if(window.location.search.indexOf('&cc=us&l=english') == -1) {
         window.location.search += '&cc=us&l=english';
     } else {
-        setTimeout(scrape, 3000);
+        setTimeout(scrape, delay);
     }
-}
+  }
+
   function pressbtn(){ //next page
         var classes = document.getElementsByClassName('pagebtn');
         var rightbtn;
@@ -61,6 +73,7 @@
         rightbtn.click();
         next();
     }
+
   function scrape() {
     try {
       var dialog = ShowBlockingWaitDialog("Cream", "<p id='cream_status'></p>");
@@ -185,14 +198,12 @@
 
       var auto = document.createElement("div");
       auto.setAttribute("class", "block");
-      auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Automate</span></a>";
-      jQuery(auto).insertBefore(jQuery(".rightcol").children()[0]);
+      auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span>Automate</span></a>";
+      jQuery(auto).insertBefore(jQuery(".rightcol").children()[1]);
       auto.addEventListener("click", function (e) {
         localStorage.setItem('automate', 'true');
         history.go(0);
       });
-
-
 
       var resetButton = document.createElement("div");
       resetButton.setAttribute("style", "display: inline");
