@@ -37,7 +37,7 @@
     var autoMsgBtn;
 
     if(automate == 'true') {
-        autoMsgTime = "Retrying in "+delay+"ms";
+        autoMsgTime = "Retrying in "+delay+"ms.";
         autoMsgBtn = "Stop retrying";
     }
     else autoMsgTime = "";
@@ -45,21 +45,26 @@
     if (info === undefined) info = "Cream experienced an internal error.<br>"+autoMsgTime;
 
 
-    var dialog = ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure", autoMsgBtn).done(function (choice) {
-        if ( choice != 'OK' ){
-            localStorage.setItem('automate', 'false');
+    var dialog = ShowConfirmDialog("Cream Error", info, "Reconfigure", "Close", autoMsgBtn).done(function (choice) {
+
+            automate = localStorage.setItem('automate', 'false');
+            //location.reload();
+
+    }).done(function (choice) {
+        if(choice == 'SECONDARY'){
+            automate = localStorage.setItem('automate', 'false');
             location.reload();
+        } else {
+            GM_deleteValue("lambda");
+            GM_deleteValue("apikey");
+            localStorage.setItem('automate', 'false');
+            history.go(0);
         }
-    }).fail(function () {
-      GM_deleteValue("lambda");
-      GM_deleteValue("apikey");
-      localStorage.setItem('automate', 'false');
-      history.go(0);
     });
 
     if(automate == 'true') {
       setTimeout(function(){
-            document.querySelector(".btn_green_white_innerfade.btn_medium").click(); //Can't seem to find what to call to simply close.
+            dialog.Dismiss();
             scrape();
           },delay);
     }
@@ -86,6 +91,8 @@
       var dialog = ShowBlockingWaitDialog("Cream", "<p id='cream_status'></p>");
       var logdiv = document.getElementById("cream_status");
 
+
+
       logdiv.innerText = "Gathering data...";
 
       var payload;
@@ -111,6 +118,7 @@
             localStorage.setItem('notUsd', 'true');
             localStorage.setItem('automate', 'false');
             dialog.Dismiss();
+            if(automate == 'true') location.reload();
             ShowConfirmDialog("Cream Error", "Your Steam Store prices are not in USD. Please log out and append ?cc=us&l=english to search URLs.", "Log out for me", "Close").done(function () {
               Logout();
               return;
@@ -170,8 +178,13 @@
             var rt = JSON.parse(data.responseText);
             if (rt === "Invalid API key") error(rt);
             else {
-                ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
-                if(automate == 'true') pressbtn();
+                var alert = ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
+                if(automate == 'true') {
+                    setTimeout(function() {
+                        alert.Dismiss()
+                        pressbtn();
+                    }, delay);
+                }
             }
           }
           catch (e) {
@@ -212,7 +225,7 @@
       else autoBtnMsg = "Automate";
       auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span>"+autoBtnMsg+"</span></a>";
       jQuery(auto).insertBefore(jQuery(".rightcol").children()[1]);
-      auto.addEventListener("click", function (e) {
+      auto.addEventListener("click", function () {
         if(automate == 'true') localStorage.setItem('automate', 'false');
         else localStorage.setItem('automate', 'true');
         history.go(0);
