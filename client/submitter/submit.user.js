@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.2.3
+// @version      0.2.4
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -12,10 +12,8 @@
 // @grant        unsafeWindow
 // ==/UserScript==
 
-// 0.2.3
-// - handle apps without a release date "correctly" (thanks to @BrentVDJ)
-// - fix ESLint being paranoid about parseInt
-// - fix and clean up code + formatting
+// 0.2.4
+// - handle Series apps
 
 /* eslint radix: "as-needed" */
 /* global ShowConfirmDialog, GM_getValue, GM_setValue, GM_deleteValue, GM_xmlhttpRequest, history, ShowBlockingWaitDialog, ShowAlertDialog, ShowPromptDialog, jQuery, Logout */
@@ -59,6 +57,7 @@
 
           if (price.indexOf("Free") > -1) price = 0.00;
           else if (price === "") price = -1;
+          else if (price.indexOf("Season") > -1) price = -1; // temporary workaround for Series apps
           else if (price[0] != "$") {
             dialog.Dismiss();
             ShowConfirmDialog("Cream Error", "Your Steam Store prices are not in USD. Please log out and append ?cc=us&l=english to search URLs.", "Log out for me", "Close").done(function () {

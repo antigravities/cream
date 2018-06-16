@@ -1,125 +1,134 @@
 <html>
-  <head>
-    <!-- Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-    <!-- // End Bootstrap -->
-    
-    <link rel="stylesheet" href="viewclient.css">
-    
-    <script src="https://cdn.rawgit.com/github/fetch/cbb313bf/fetch.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
-    
-    <script src="viewclient.js"></script>
-    <title>
-      SteamSal.es
-    </title>
-  </head>
-  <body>
-    <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark">
-      <a class="navbar-brand filter" href="#" data-q="">SteamSal.es</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+
+<head>
+  <!-- Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <!-- // End Bootstrap -->
+
+  <link rel="stylesheet" href="viewclient.css">
+
+  <script src="https://cdn.rawgit.com/github/fetch/cbb313bf/fetch.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
+
+  <script src="viewclient.js"></script>
+  <title>
+    SteamSal.es
+  </title>
+</head>
+
+<body>
+  <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark">
+    <a class="navbar-brand filter" href="#" data-q="">SteamSal.es</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <input type="text" id="q" class="form-control" placeholder="I'm looking for..."></input>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <input type="text" id="q" class="form-control" placeholder="I'm looking for..."></input>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Quick Filters
             </a>
-            <div class="dropdown-menu container" id="quickfilters" aria-labelledby="navbarDropdown">
-              <div class="row">
-                <div class="col-sm">
-                  <h3>Genre</h3>
-                  <a href="#" class="filter" data-q="Action">Action</a><br>
-                  <a href="#" class="filter" data-q="Adventure">Adventure</a><br>
-                  <a href="#" class="filter" data-q="Indie">Indie</a><br>
-                  <a href="#" class="filter" data-q="Casual">Casual</a><br>
-                  <a href="#" class="filter" data-q="Simulation">Simulation</a><br>
-                  <a href="#" class="filter" data-q="Strategy">Strategy</a><br>
-                  <a href="#" class="filter" data-q="RPG">RPG</a><br>
-                  <a href="#" class="filter" data-q="Multiplayer">Multiplayer</a><br>
-                  <a href="#" class="filter" data-q="Early Access">Early Access</a><br>
-                  <a href="#" class="filter" data-q="Puzzle">Puzzle</a><br>
-                  <a href="#" class="filter" data-q="Atmospheric">Atmospheric</a>
-                </div>
-                <div class="col-sm">
-                  <h3>Discount</h3>
-                  <a href="#" class="filter" data-q="">I'm</a>
-                </div>
-                <div class="col-sm">
-                  <h3>Others</h3>
-                  <a href="#" class="filter" data-view="all">All Apps (warning: slow!)</a><br>
-                  <a href="#" class="filter" data-view="recommended">Volunteer-recommended</a>
-                </div>
+          <div class="dropdown-menu container" id="quickfilters" aria-labelledby="navbarDropdown">
+            <div class="row">
+              <div class="col-sm">
+                <h3>Genre</h3>
+                <a href="#" class="filter" data-tag="Action">Action</a><br>
+                <a href="#" class="filter" data-tag="Adventure">Adventure</a><br>
+                <a href="#" class="filter" data-tag="Indie">Indie</a><br>
+                <a href="#" class="filter" data-tag="Casual">Casual</a><br>
+                <a href="#" class="filter" data-tag="Simulation">Simulation</a><br>
+                <a href="#" class="filter" data-tag="Strategy">Strategy</a><br>
+                <a href="#" class="filter" data-tag="RPG">RPG</a><br>
+                <a href="#" class="filter" data-tag="Multiplayer">Multiplayer</a><br>
+                <a href="#" class="filter" data-tag="Early Access">Early Access</a><br>
+                <a href="#" class="filter" data-tag="Puzzle">Puzzle</a><br>
+                <a href="#" class="filter" data-tag="Atmospheric">Atmospheric</a>
+              </div>
+              <div class="col-sm">
+                <h3>Discount</h3>
+                <a href="#" class="filter" data-tag="$1">Under $1</a><br>
+                <a href="#" class="filter" data-tag="$5">Under $5</a><br>
+                <a href="#" class="filter" data-tag="$10">Under $10</a><br>
+                <a href="#" class="filter" data-tag="50%">50% off</a><br>
+                <a href="#" class="filter" data-tag="75%">75% off</a><br>
+                <a href="#" class="filter" data-tag="90%">90% off</a><br>
+              </div>
+              <div class="col-sm">
+                <h3>Others</h3>
+                <a href="#" class="filter" data-view="all">All (slow!)</a><br>
+                <a href="#" class="filter" data-view="recommended">Recommended</a><br>
+                <a href="#" class="filter" data-view="random">Random</a>
               </div>
             </div>
-          </li>
-        </ul>
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item">
-            <a href="#" data-toggle="modal" data-target="#about" class="nav-link">About</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    <div class="container">
-      <h3>Top Sellers</h3>
-      <div class="container mcontainer">
-        <div class="row">
-          <div class="col-sm appshowcase">
-            &hearts;
           </div>
-          <div class="col-sm appshowcase">
-            &hearts;
-          </div>
-          <div class="col-sm appshowcase">
-            &hearts;
-          </div>
-          <div class="col-sm appshowcase">
-            &hearts;
-          </div>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a href="#" data-toggle="modal" data-target="#about" class="nav-link">About</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container">
+    <h3>Top Sellers</h3>
+    <div class="container mcontainer">
+      <div class="row">
+        <div class="col-sm appshowcase">
+          &hearts;
+        </div>
+        <div class="col-sm appshowcase">
+          &hearts;
+        </div>
+        <div class="col-sm appshowcase">
+          &hearts;
+        </div>
+        <div class="col-sm appshowcase">
+          &hearts;
         </div>
       </div>
-      <hr>
-      <h3 id="view">...</h3>
-      <div class="container" id="list">
-      </div>
     </div>
-    <div id="about" class="modal fade" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">About SteamSal.es</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <hr>
+    <h3 id="view">...</h3>
+    <div class="container" id="list">
+    </div>
+  </div>
+  <div id="about" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">About SteamSal.es</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
+        </div>
+        <div class="modal-body">
+          <h2>Site tagline goes here.</h2>
+          <div>
+            Site info goes here.
           </div>
-          <div class="modal-body">
-            <h2>Site tagline goes here.</h2>
-            <div>
-              Site info goes here.
-            </div>
-            <hr>
-            <h2>Credits</h2>
-            <div>
-              SteamSal.es is developed and financed by <a href="https://cutie.cafe/" target="_blank">Cutie Caf&eacute;</a> in association with <a href="https://steam.reddit.com/" target="_blank">/r/Steam</a>.
-            </div>
-            <br>
-            <div>
-              Data on SteamSal.es is provided by volunteers running our browser extension. We'd like to thank the following people for their contributions:
-              <div id="contributors" class="ui equal width grid">
-                
-              </div>
+          <hr>
+          <h2>Credits</h2>
+          <div>
+            SteamSal.es is developed and financed by <a href="https://cutie.cafe/" target="_blank">Cutie Caf&eacute;</a> in association with <a href="https://steam.reddit.com/" target="_blank">/r/Steam</a>.
+          </div>
+          <br>
+          <div>
+            Data on SteamSal.es is provided by volunteers running our browser extension. We'd like to thank the following people for their contributions:
+            <div id="contributors" class="ui equal width grid">
+
             </div>
           </div>
         </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
