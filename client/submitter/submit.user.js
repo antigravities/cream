@@ -185,12 +185,6 @@
 
       var auto = document.createElement("div");
       auto.setAttribute("class", "block");
-      var isChecked;
-      if(automate == 'true'){
-          isChecked = "checked";
-      } else {
-          isChecked = "";
-      }
       auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Automate</span></a>";
       jQuery(auto).insertBefore(jQuery(".rightcol").children()[0]);
       auto.addEventListener("click", function (e) {
