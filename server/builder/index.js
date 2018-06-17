@@ -84,6 +84,9 @@ bot.on("loggedOn", async() => {
 
             if (dbapp.discount > 0) atags.push("Sale");
 
+            // game, dlc, tool, software, media?
+            if (ci.appinfo.common && ci.appinfo.common.type) atags.push(ci.appinfo.common.type);
+
           }
           catch (e) {
             console.log(e);
@@ -98,18 +101,33 @@ bot.on("loggedOn", async() => {
     });
   }
 
-  console.log("Writing database to file...");
   l = await cxn.query("SELECT appid, title, tags, oprice, price, discount, tags, developer, publisher FROM apps");
 
   var obj = {};
 
   l.forEach((i) => {
     Object.keys(i).forEach((j) => {
+      // node-mysql returns Buffers for bit values
+      // this turns them into ints
       if (Object.prototype.toString.call(i[j]).slice(8, -1) == "Uint8Array") i[j] = i[j].readInt8(0);
     });
 
+    // skip non-discounted apps
+    if (i.discount === 0) return;
+    // skip free apps
+    if (i.oprice === 0) return;
+
+    // tags are stored comma separated in the DB
+    let tags = i.tags !== null ? i.tags.split(", ") : [];
+
+    // skip anything that isn't a software or a game
+    // maybe include series or video in future, but the scraper doesn't know too much about those and fetching prices is hard
+    // as a side effect, we'll also skip over apps we don't know enough about
+    if (tags.indexOf("Game") < 0 && tags.indexOf("Software") < 0) return;
+
+    // ok looks good!
     obj[i.appid] = i;
-    obj[i.appid].tags = obj[i.appid].tags !== null ? obj[i.appid].tags.split(", ") : [];
+    obj[i.appid].tags = tags;
   });
 
   finished.apps = obj;
@@ -124,19 +142,33 @@ bot.on("loggedOn", async() => {
       if ($(j).attr("data-ds-appid") != null) finished.featured.push($(j).attr("data-ds-appid").split(",")[0]);
     });
   }
-  catch (e) {
-
-  }
+  catch (e) {}
 
   finished.recommendations = (await cxn.query("SELECT DISTINCT appid FROM user_pick")).map(i => i.appid);
 
+  let personas = (await cxn.query("SELECT DISTINCT steamid FROM users")).map(i => i.steamid);
+
+  bot.setMaxListeners(100);
+
+  console.log("Requesting persona data...");
+
+  try {
+    let res = JSON.parse(await request("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0001/?key=" + config.steam_api + "&steamids=" + personas.join(",")));
+    res = res.response.players.player.map(i => ({ name: i.personaname, profileurl: i.profileurl, avatar: i.avatarfull }));
+    finished.volunteers = res;
+  }
+  catch (e) {
+    console.log(e);
+    finished.volunteers = [];
+  }
+
+  bot.disconnect();
+  cxn.end();
+
+  console.log("Writing database to file...");
   fs.writeFileSync("build.json", JSON.stringify(finished));
 
-  cxn.end();
-  bot.disconnect();
-
-  console.log("Done!");
+  console.log("Done! Wrote " + Object.keys(finished.apps).length + " apps");
 });
-
 console.log("Logging in to Steam...");
 bot.logOn();
