@@ -22,8 +22,8 @@
   var lambda;
   var key;
   var automate = localStorage.getItem('automate');
-  var delay = 3000; //delay of retrying and continuing
   var notUsd = localStorage.getItem('notUsd');
+  const DELAY = 3000;
 
   if(localStorage.getItem('automate') === null) localStorage.setItem('automate', 'false');
 
@@ -37,7 +37,7 @@
     var autoMsgBtn;
 
     if(automate == 'true') {
-        autoMsgTime = "Retrying in "+delay+"ms.";
+        autoMsgTime = "Retrying in "+DELAY+"ms.";
         autoMsgBtn = "Stop retrying";
     }
     else autoMsgTime = "";
@@ -46,11 +46,6 @@
 
 
     var dialog = ShowConfirmDialog("Cream Error", info, "Reconfigure", "Close", autoMsgBtn).done(function (choice) {
-
-            automate = localStorage.setItem('automate', 'false');
-            //location.reload();
-
-    }).done(function (choice) {
         if(choice == 'SECONDARY'){
             automate = localStorage.setItem('automate', 'false');
             location.reload();
@@ -66,15 +61,15 @@
       setTimeout(function(){
             dialog.Dismiss();
             scrape();
-          },delay);
+          },DELAY);
     }
   }
 
-  if(automate == 'true') window.onload = next();
+
 
   function next() {
     if((notUsd == 'true') && (window.location.search.indexOf('&cc=us&l=english') == -1)) window.location.search += '&cc=us&l=english';
-    else setTimeout(scrape, delay);
+    else scrape();
   }
 
   function pressbtn(){ //next page
@@ -83,6 +78,7 @@
         if(window.location.search.indexOf('page') == -1) rightbtn = classes[0];
         else rightbtn = classes[1];
         rightbtn.click();
+        //SearchLinkClick(rightbtn); also works
         next();
     }
 
@@ -181,9 +177,9 @@
                 var alert = ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
                 if(automate == 'true') {
                     setTimeout(function() {
-                        alert.Dismiss()
+                        alert.Dismiss();
                         pressbtn();
-                    }, delay);
+                    }, DELAY);
                 }
             }
           }
@@ -243,6 +239,9 @@
         localStorage.setItem('automate', 'false');
         history.go(0);
       });
+
+      if(automate == 'true') next();
+
     }
   });
 })();
