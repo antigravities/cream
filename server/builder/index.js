@@ -85,8 +85,12 @@ bot.on("loggedOn", async() => {
             if (dbapp.discount > 0) atags.push("Sale");
 
             // game, dlc, tool, software, media?
-            if (ci.appinfo.common && ci.appinfo.common.type) atags.push(ci.appinfo.common.type);
-
+            if (ci.appinfo.common && ci.appinfo.common.type) {
+              // are we a Game with a parent? if so, we're probably a demo, not a game
+              // (this shouldn't really matter anyway - Demos are usually free, and thus excluded - but would be nice for future accounting purposes)
+              if (ci.appinfo.common.type === "Game" && ci.appinfo.common.parent) atags.push("Demo");
+              else atags.push(ci.appinfo.common.type);
+            }
           }
           catch (e) {
             console.log(e);
