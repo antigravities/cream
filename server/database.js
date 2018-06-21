@@ -69,6 +69,10 @@ class Database {
     return await this._first("SELECT * FROM apps_unverified WHERE appid = ?", [app]);
   }
 
+  async getVerifiedApp(app) {
+    return await this._first("SELECT * FROM apps WHERE appid = ?", [app]);
+  }
+
   async addApp(table, appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter, verifier) {
     var items = [appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter];
     if (table == "") items.push(verifier);
@@ -114,6 +118,10 @@ class Database {
 
   async getUserSteamids() {
     return await this._query("SELECT DISTINCT steamid FROM users");
+  }
+
+  async hasPicked(userid, appid) {
+    return await this._is("SELECT IF(COUNT(*) > 0, TRUE, FALSE) AS result FROM user_pick WHERE appid = ? AND userid = ?", [appid, userid]);
   }
 }
 

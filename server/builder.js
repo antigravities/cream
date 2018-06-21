@@ -216,7 +216,7 @@ module.exports = (database) => {
         console.log("[Builder] Requesting persona data...");
         try {
           let res = JSON.parse(await request("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0001/?key=" + config.steam_api + "&steamids=" + personas.join(",")));
-          res = res.response.players.player.map(i => ({ name: i.personaname, profile: i.profileurl, avatar: i.avatarfull }));
+          res = res.response.players.player.map(i => ({ name: i.personaname, profile: i.profileurl, avatar: i.avatarfull, steamid: i.steamid }));
           finished.volunteers = res;
         }
         catch (e) {
@@ -254,7 +254,7 @@ module.exports = (database) => {
         console.log("Building views...", 0);
         finished.views = {};
         finished.views.all = () => Object.values(finished.apps);
-        finished.views.recommended = () => Object.keys(finished.recommendations).map(i => { return finished.apps[i]; });
+        finished.views.recommended = () => finished.recommendations
         finished.views.random = () => {
           let f = [];
 
@@ -264,6 +264,7 @@ module.exports = (database) => {
 
           return f;
         }
+        finished.views.featured = () => finished.featured;
 
         console.log("[Builder] Finished! Found " + Object.keys(finished.apps).length + " apps across " + Object.keys(tags).length + " tags");
 

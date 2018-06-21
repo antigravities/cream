@@ -6,6 +6,7 @@
   const express = require("express");
   const a = express();
   const h = require("express-async-handler");
+  const request = require("request-promise");
 
   const fs = require("fs");
   const babel = require("babel-core");
@@ -190,7 +191,7 @@
     let u = await db.getUserByApiKey(req.body.key);
     if (u === null) return respond(res, false, "Invalid API key");
 
-    if (!u.pick_override) return respond(res, false, "You must have a Pick Override API key to do that");
+    //if (!u.pick_override) return respond(res, false, "You must have a Pick Override API key to do that");
 
     if (!req.body.appId || isNaN(req.body.appId)) return respond(res, false, "Invalid appId to pick given.");
 
@@ -198,21 +199,47 @@
 
     try {
       // Check if app exists
-      let app = await db.getUnverifiedApp(appId) || await db.getVerifiedApp(appId);
+      if (!build.apps[appId]) return respond(res, false, "Oops, that app isn't on sale or is invalid.");
 
-      if (app === null) {
-        return respond(res, false, "Invalid App specified. Not yet in the database.");
+      if (!u.pick_override) {
+        // Check if user picked too much
+        let userPicks = await db.getPicksByUser(u.id);
+        if (userPicks.length >= global.config.maxPicks) {
+          return respond(res, false, "You already picked too many times.");
+        }
       }
 
-      //if( ! u.pick_override ){
-      // Check if user picked too much
-      //  let userPicks = await db.getPicksByUser(u.id);
-      //  if (userPicks.length >= global.config.maxPicks) {
-      //    return respond(res, false, "You already picked too many times.");
-      //  }
-      //}
+      if (await db.hasPicked(u.id, appId)) return respond(res, false, "You've already picked that app.");
 
       await db.addPick(u.id, appId);
+
+      if (config.webhooks) {
+        let persona = null;
+
+        for (let i = 0; i < build.volunteers.length; i++) {
+          if (build.volunteers[i].steamid === u.steamid) {
+            persona = build.volunteers[i];
+            break;
+          }
+        }
+
+        if (persona === null) return;
+
+        for (let f = 0; f < config.webhooks.length; f++) {
+          await request.post(config.webhooks[f], {
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              content: "I recommend **" + build.apps[appId].title + "**!\n\n" + (build.apps[appId].discount > 0 ? "~~$" + build.apps[appId].oprice + "~~ **-" + build.apps[appId].discount + "%** " : "") + "**$" + build.apps[appId].price + "**\n*" + build.apps[appId].tags.join(", ") + "*\nhttps://store.steampowered.com/app/" + appId,
+              username: persona.name,
+              avatar_url: persona.avatar
+            })
+          });
+        }
+
+
+      }
     }
     catch (e) {
       return respond(res, false, "O nooooes! " + e);
@@ -220,24 +247,6 @@
 
     return respond(res, true, "Okay, added your pick.");
 
-  }));
-
-  a.post("/unpick", h(async(req, res) => {
-    if (!req.body || !req.body.key) return respond(res, false, "Missing API key");
-
-    let u = await db.getUserByApiKey(req.body.key);
-    if (u === null) return respond(res, false, "Invalid API key");
-
-    if (!u.pick_override) return respond(res, false, "You must have a Pick Override API key to do that");
-
-    if (!req.body.appId || isNaN(req.body.appId)) return respond(res, false, "Invalid appId to unpick given.");
-
-    let appId = Number(req.body.appId);
-
-    if ((await db.getPicksByApp(appId)).length === 0) return respond(res, false, "App was not picked.");
-    await db.removePickForApp(appId);
-
-    return respond(res, true, "Okay, unpicked.");
   }));
 
   a.get("/search/:what", h(async(req, res) => {
@@ -257,17 +266,17 @@
     return respond(res, true, build.taginfo);
   }));
 
-  a.get("/volunteers", h(async(req, res) => {
-    return respond(res, true, build.volunteers);
-  }));
-
-  a.get("/featured", h(async(req, res) => {
-    return respond(res, true, build.featured);
-  }));
-
-  a.get("/recommended", h(async(req, res) => {
-    return respond(res, true, build.recommendations);
+  a.get("/homebuild", h(async(req, res) => {
+    return respond(res, true, {
+      volunteers: build.volunteers,
+      featured: build.featured,
+      recommendations: build.recommendations
+    });
   }));
 
   a.listen(3000);
+
+  setInterval(async() => {
+    build = await builder();
+  }, 60000);
 })();

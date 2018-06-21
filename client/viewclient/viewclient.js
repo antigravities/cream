@@ -69,6 +69,8 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
 
   var html = "";
 
+  apps = apps.filter(i => i !== null); // I don't know
+
   if (sort) {
     apps = apps.sort((a, b) => {
       if (cream.sort[1] == "asc") {
@@ -85,8 +87,6 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
   }
 
   for (let j = cream.npp * page; j < apps.length && j < cream.npp * (page + 1); j++) {
-    console.log(j);
-
     let i = apps[j];
 
     if (i === null) return;
@@ -156,7 +156,6 @@ cream.search = async query => {
   if (query.trim() !== "") {
     $(".pagecontrols").css("display", "none");
     let res = await (await fetch("/search/" + encodeURIComponent(query))).json();
-    console.log(res);
     cream.buildQueryResult(res.result, "Search: " + cream.p(res.query) + " (" + res.result.length + " apps)", 0, res.is_tag);
   }
   else {
@@ -193,9 +192,11 @@ cream.bindFilters = () => {
 $(document).ready(async() => {
   $(".pagecontrols").css("display", "none");
 
-  cream.buildFeatured(await (await fetch("/featured")).json());
+  let homebuild = await (await fetch("/homebuild")).json();
+  let volunteers = homebuild.volunteers;
+  cream.recommendations = homebuild.recommendations;
 
-  cream.recommendations = (await (await fetch("/recommended")).json());
+  cream.buildFeatured(homebuild.featured);
 
   cream.buildQueryResult(cream.recommendations, "Recommended", 0);
 
@@ -225,7 +226,6 @@ $(document).ready(async() => {
 
   cream.bindFilters();
 
-  let volunteers = await (await fetch("/volunteers")).json();
   let html = "";
 
   volunteers.forEach((i, j) => {
