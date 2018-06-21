@@ -68,7 +68,13 @@
 
   a.get("/", (req, res) => {
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(fs.readFileSync("../client/viewclient/index.html"));
+
+    if (Date.now() > config.launch) {
+      res.end(fs.readFileSync("../client/viewclient/index.html"));
+    }
+    else {
+      res.end(fs.readFileSync("../client/viewclient/hello.html"));
+    }
   });
 
   a.get("/assets/:asset", (req, res) => {
@@ -278,5 +284,5 @@
 
   setInterval(async() => {
     build = await builder();
-  }, 60000);
+  }, config.launch < Date.now() ? 300000 : 120000);
 })();

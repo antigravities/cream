@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.2.4
+// @version      0.2.6
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -12,9 +12,8 @@
 // @grant        unsafeWindow
 // ==/UserScript==
 
-// 0.2.4
-// - handle Series apps
-// - submit picks by clicking ⁂ in search results
+// 0.2.6
+// - oops
 
 /* eslint radix: "as-needed" */
 /* global ShowConfirmDialog, GM_getValue, GM_setValue, GM_deleteValue, GM_xmlhttpRequest, history, ShowBlockingWaitDialog, ShowAlertDialog, ShowPromptDialog, jQuery, Logout */
@@ -46,7 +45,7 @@
         payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row[data-ds-appid]:not([data-ds-packageid])")).map((i) => {
           let g = {};
           g.appid = parseInt(i.getAttribute("data-ds-appid"));
-          g.title = i.querySelector(".title").innerText.trim();
+          g.title = i.querySelector(".title").innerText.trim().replace(" ⁂", "");
 
           let price;
 
