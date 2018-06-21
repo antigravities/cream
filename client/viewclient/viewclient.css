@@ -2,7 +2,8 @@
   position: relative;
 }
 
-.discount, .price {
+.discount,
+.price {
   color: #a4d007;
   background-color: #4c6b22;
   position: absolute;
@@ -13,7 +14,7 @@
   text-align: center;
 }
 
-.discount > img {
+.discount>img {
   max-height: 116px;
 }
 
@@ -23,7 +24,8 @@
   height: 70px;
 }
 
-.devpub, .tags {
+.devpub,
+.tags {
   font-size: 0.8em;
 }
 
@@ -31,14 +33,16 @@
   float: right;
 }
 
-.title, .devpub, .tags {
+.title,
+.devpub,
+.tags {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 471px;
+  max-width: 425px;
 }
 
-.col-sm > a {
+.col-sm>a {
   color: black;
   text-decoration: none !important;
 }
@@ -56,4 +60,40 @@
 #quickfilters {
   width: 500px;
   padding: 15px;
+}
+
+.avatar {
+  float: left;
+  height: calc(1.75rem + 1rem + 1rem + 1em);
+  padding-right: 2vh;
+  padding-top: 1vh;
+}
+
+.sorter {
+  float: right;
+}
+
+.paginator.back {
+  float: left;
+}
+
+.paginator.next {
+  float: right;
+}
+
+.pagecontrols {
+  text-align: center;
+  line-height: 31px;
+}
+
+.overwhelmingly-positive, .very-positive, .mostly-positive, .positive {
+  color: #66C0F4;
+}
+
+.mixed {
+  color: #B9A074;
+}
+
+.overwhelmingly-negative, .very-negative, .mostly-negative, .negative {
+  color: #A34C25;
 }
