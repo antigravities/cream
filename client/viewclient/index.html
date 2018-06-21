@@ -8,12 +8,14 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
   <!-- // End Bootstrap -->
 
-  <link rel="stylesheet" href="viewclient.css">
+  <link rel="stylesheet" href="/assets/css">
 
-  <script src="https://cdn.rawgit.com/github/fetch/cbb313bf/fetch.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
+  <script src="https://s3.cutie.cafe/shared/fetch-cbb313bf.js"></script>
+  <script src="https://s3.cutie.cafe/shared/purify-3553b54c.min.js"></script>
+  <script src="https://s3.cutie.cafe/shared/fuse-3.0.4.min.js"></script>
+  <script src="https://s3.cutie.cafe/shared/babel-polyfill-6.26.0.min.js"></script>
 
-  <script src="viewclient.js"></script>
+  <script src="/assets/js.now"></script>
   <title>
     SteamSal.es
   </title>
@@ -21,52 +23,17 @@
 
 <body>
   <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark">
-    <a class="navbar-brand filter" href="#" data-q="">SteamSal.es</a>
+    <a class="navbar-brand filter" href="#" data-q="">SteamSal.es BETA</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <input type="text" id="q" class="form-control" placeholder="I'm looking for..."></input>
+          <img src="http://wikigameguides.com/wp-content/uploads/2017/06/logo_english-1.png" height=50></img>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Quick Filters
-            </a>
-          <div class="dropdown-menu container" id="quickfilters" aria-labelledby="navbarDropdown">
-            <div class="row">
-              <div class="col-sm">
-                <h3>Genre</h3>
-                <a href="#" class="filter" data-tag="Action">Action</a><br>
-                <a href="#" class="filter" data-tag="Adventure">Adventure</a><br>
-                <a href="#" class="filter" data-tag="Indie">Indie</a><br>
-                <a href="#" class="filter" data-tag="Casual">Casual</a><br>
-                <a href="#" class="filter" data-tag="Simulation">Simulation</a><br>
-                <a href="#" class="filter" data-tag="Strategy">Strategy</a><br>
-                <a href="#" class="filter" data-tag="RPG">RPG</a><br>
-                <a href="#" class="filter" data-tag="Multiplayer">Multiplayer</a><br>
-                <a href="#" class="filter" data-tag="Early Access">Early Access</a><br>
-                <a href="#" class="filter" data-tag="Puzzle">Puzzle</a><br>
-                <a href="#" class="filter" data-tag="Atmospheric">Atmospheric</a>
-              </div>
-              <div class="col-sm">
-                <h3>Discount</h3>
-                <a href="#" class="filter" data-tag="$1">Under $1</a><br>
-                <a href="#" class="filter" data-tag="$5">Under $5</a><br>
-                <a href="#" class="filter" data-tag="$10">Under $10</a><br>
-                <a href="#" class="filter" data-tag="50%">50% off</a><br>
-                <a href="#" class="filter" data-tag="75%">75% off</a><br>
-                <a href="#" class="filter" data-tag="90%">90% off</a><br>
-              </div>
-              <div class="col-sm">
-                <h3>Others</h3>
-                <a href="#" class="filter" data-view="all">All (slow!)</a><br>
-                <a href="#" class="filter" data-view="recommended">Recommended</a><br>
-                <a href="#" class="filter" data-view="random">Random</a>
-              </div>
-            </div>
-          </div>
+        <li class="nav-item">
+          <input type="text" id="q" class="form-control" placeholder="I'm looking for..."></input>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
@@ -76,6 +43,50 @@
       </ul>
     </div>
   </nav>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h4>Genre</h4>
+        <a href="#" class="filter" data-q="Action">Action</a><br>
+        <a href="#" class="filter" data-q="Adventure">Adventure</a><br>
+        <a href="#" class="filter" data-q="Casual">Casual</a><br>
+        <a href="#" class="filter" data-q="Singleplayer">Singleplayer</a><br>
+        <a href="#" class="filter" data-q="Simulation">Simulation</a><br>
+      </div>
+      <div class="col">
+        <h4>&nbsp;</h4>
+        <a href="#" class="filter" data-q="Strategy">Strategy</a><br>
+        <a href="#" class="filter" data-q="RPG">RPG</a><br>
+        <a href="#" class="filter" data-q="Great Soundtrack">Great Soundtrack</a><br>
+        <a href="#" class="filter" data-q="Multiplayer">Multiplayer</a><br>
+        <a href="#" class="filter" data-q="2D">2D</a><br>
+      </div>
+      <div class="col">
+        <h4>&nbsp;</h4>
+        <a href="#" class="filter" data-q="Atmospheric">Atmospheric</a><br>
+        <a href="#" class="filter" data-q="Puzzle">Puzzle</a><br>
+        <a href="#" class="filter" data-q="VR">VR</a><br>
+        <a href="#" class="filter" data-q="Story Rich">Story Rich</a><br>
+        <a href="#" class="filter" data-q="Difficult">Difficult</a><br>
+      </div>
+      <div class="col">
+        <h4>Discount</h4>
+        <a href="#" class="filter" data-q="$1">Under $1</a><br>
+        <a href="#" class="filter" data-q="$5">Under $5</a><br>
+        <a href="#" class="filter" data-q="$10">Under $10</a><br>
+        <a href="#" class="filter" data-q="50%">50% off</a><br>
+        <a href="#" class="filter" data-q="75%">75% off</a><br>
+        <a href="#" class="filter" data-q="90%">90% off</a><br>
+      </div>
+      <div class="col">
+        <h4>Misc.</h4>
+        <a href="#" class="filter" data-q="all">All (slow!)</a><br>
+        <a href="#" class="filter" data-q="recommended">Recommended</a><br>
+        <a href="#" class="filter" data-q="random">Random</a>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <h3>Top Sellers</h3>
     <div class="container mcontainer">
@@ -95,9 +106,50 @@
       </div>
     </div>
     <hr>
+    <div class="dropdown sorter">
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" id="count-button">Per Page (50)</button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item count" data-count="5">5</a>
+        <a class="dropdown-item count" data-count="10">10</a>
+        <a class="dropdown-item count" data-count="25">25</a>
+        <a class="dropdown-item count" data-count="50">50</a>
+        <a class="dropdown-item count" data-count="100">100</a>
+        <a class="dropdown-item count" data-count="500">500</a>
+      </div>
+    </div>
+    <div class="dropdown sorter">
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" id="sorter-button">Sort (A-Z)</button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item sort" data-sort="title,asc">A-Z</a>
+        <a class="dropdown-item sort" data-sort="title,desc">Z-A</a>
+        <a class="dropdown-item sort" data-sort="price,asc">Lowest Price</a>
+        <a class="dropdown-item sort" data-sort="price,desc">Highest Price</a>
+        <a class="dropdown-item sort" data-sort="oprice,asc">Lowest Original Price</a>
+        <a class="dropdown-item sort" data-sort="oprice,desc">Highest Original Price</a>
+        <a class="dropdown-item sort" data-sort="reviews,asc">User Reviews, High to Low</a>
+        <a class="dropdown-item sort" data-sort="reviews,desc">User Reviews, Low to High</a>
+      </div>
+    </div>
     <h3 id="view">...</h3>
+    <div class="pagecontrols">
+      <button class="btn btn-sm paginator back">&larr;</button>
+      <span class="pagecounter">
+
+      </span>
+      <button class="btn btn-sm paginator next">&rarr;</button>
+    </div>
     <div class="container" id="list">
     </div>
+    <div class="pagecontrols">
+      <button class="btn btn-sm paginator back">&larr;</button>
+      <span class="pagecounter">
+
+      </span>
+      <button class="btn btn-sm paginator next">&rarr;</button>
+    </div>
+
+    Copyright &copy; 2018 Cutie Caf&eacute;, /r/Steam, and contributors<br>Titles, capsules, and other game assets listed on this site are &copy; their various owners<br><a href="https://store.steampowered.com/">Powered by Steam</a> but not affiliated
+    with Valve Corporation
   </div>
   <div id="about" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -109,25 +161,42 @@
             </button>
         </div>
         <div class="modal-body">
-          <h2>Site tagline goes here.</h2>
+          <h2>SteamSal.es is a new way to browse the Steam Store.</h2>
           <div>
-            Site info goes here.
+            Filter and sort by tag, discount, developer, or publisher. Or find top recommendations from our team. SteamSal.es has everything you'll need to find games you'll love.
           </div>
           <hr>
+          <h2>Found a bug or have a suggestion?</h2>
+          Feel free to let us know <a href="https://github.com/antigravities/cream">on GitHub</a>, or drop us a line at developers at cutie dot cafe. We can't wait to hear from you!
+          <hr>
           <h2>Credits</h2>
-          <div>
-            SteamSal.es is developed and financed by <a href="https://cutie.cafe/" target="_blank">Cutie Caf&eacute;</a> in association with <a href="https://steam.reddit.com/" target="_blank">/r/Steam</a>.
-          </div>
-          <br>
-          <div>
-            Data on SteamSal.es is provided by volunteers running our browser extension. We'd like to thank the following people for their contributions:
-            <div id="contributors" class="ui equal width grid">
-
+          <h4>Development and Financing</h4>
+          <div class="container">
+            <div class="row">
+              <div class="col">
+                <img src="https://s3.cutie.cafe/logo-g.png" class="avatar"></img>
+                <h3><a href="https://cutie.cafe/">Cutie Caf&eacute;</a></h3>
+                <a href="https://patreon.com/cutiecafe">Pledge on Patreon</a><br>
+                <a href="https://ko-fi.com/cutie">Send us a tip</a>
+              </div>
+              <div class="col">
+                <h3>/r/Steam Sale Volunteers</h3>
+                <a href="https://steam.reddit.com/">Visit /r/Steam on reddit</a><br>
+                <a href="https://discord.gg/steam">Join the /r/Steam Discord server</a>
+              </div>
             </div>
           </div>
+          <h4>Data Collection</h4>
+          Data on SteamSal.es is provided by volunteers. Without them, this project would not be possible.
+          <div class="container" id="contributors">
+
+          </div>
+
         </div>
       </div>
     </div>
+  </div>
+  </div>
   </div>
 </body>
 

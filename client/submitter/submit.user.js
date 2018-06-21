@@ -12,8 +12,8 @@
 // @grant        unsafeWindow
 // ==/UserScript==
 
-// 0.2.4
-// - handle Series apps
+// 0.2.5
+// - submit picks by clicking ⁂ in search results
 
 /* eslint radix: "as-needed" */
 /* global ShowConfirmDialog, GM_getValue, GM_setValue, GM_deleteValue, GM_xmlhttpRequest, history, ShowBlockingWaitDialog, ShowAlertDialog, ShowPromptDialog, jQuery, Logout */
@@ -94,7 +94,7 @@
       var payload;
 
       try {
-        payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row[data-ds-appid]")).map((i) => {
+        payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row[data-ds-appid]:not([data-ds-packageid])")).map((i) => {
           let g = {};
           g.appid = parseInt(i.getAttribute("data-ds-appid"));
           g.title = i.querySelector(".title").innerText.trim();
@@ -240,8 +240,33 @@
         history.go(0);
       });
 
-      if(automate == 'true') next();
+      jQuery("a.search_result_row[data-ds-appid]:not([data-ds-packageid]) > .responsive_search_name_combined > .search_name > .title").append(" <a class='pick-submit' title='Submit as a SteamSal.es pick'>&#x2042;</a>").parent().removeClass("ellipsis");
 
+      jQuery(".pick-submit").on("click", function (e) {
+        e.preventDefault();
+        var dialog = ShowBlockingWaitDialog("Cream", "Submitting pick, please wait...");
+
+        GM_xmlhttpRequest({
+          method: "POST",
+          url: lambda + "/pick",
+          data: JSON.stringify({ key: key, appId: e.currentTarget.parentElement.parentElement.parentElement.parentElement.getAttribute("data-ds-appid") }),
+          headers: {
+            "Content-Type": "application/json"
+          },
+          onload: function (data) {
+            dialog.Dismiss();
+            try {
+              var rt = JSON.parse(data.responseText);
+              if (rt === "Invalid API key") error(rt);
+              else ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
+            }
+            catch (e) {
+              error();
+            }
+          }
+        });
+      });
+      if(automate == 'true') next();
     }
   });
 })();
