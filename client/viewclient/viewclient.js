@@ -114,7 +114,7 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
       discount += `$${i.price}`;
     }
 
-    tags = tags.map(i => `<a href="#" class="filter" data-q="${i}">${i}</a>`);
+    tags = tags.map(i => `<a href="#" class="filter" data-q="${i}" data-tag="${i}" colorable>${i}</a>`);
 
     html += `
       <div class="col-sm">
@@ -125,7 +125,7 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
           <img class="item-img" src="https://steamcdn-a.akamaihd.net/steam/apps/${i.appid}/header.jpg?t=${cream.lt}"></img>
           <div class='title ${rating}' title='${rating}'><b>${cream.p(title)}</b></div>
           <div class='devpub'>${cream.p(attr)}</div>
-          <div class='tags'>${tags.join(", ")}</div>
+          <div class='tags'>${tags.slice(0,4).join(" ")}</div>
         </a>
       </div>
     `;
@@ -140,6 +140,7 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
   $("#view").text(view);
 
   cream.bindFilters();
+  cream.applyTagColors();
 
   if (page === 0) $(".back").css("display", "none");
   else $(".back").css("display", "block");
@@ -149,6 +150,48 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
 
   $(".pagecontrols").css("display", "block");
 };
+
+cream.tagColors = {};
+
+cream.hex = "01234567890ABCDEF"
+cream.getRandomColor = () => {
+  let res = "";
+
+  for (let i = 0; i < 6; i++) {
+    res += cream.hex[Math.floor(Math.random() * cream.hex.length)];
+  }
+
+  return "#" + res;
+}
+
+cream.applyTagColors = () => {
+  $("[colorable]").each((i, v) => {
+
+    if (!cream.tagColors[$(v).data("q")]) {
+      cream.tagColors[$(v).data("q")] = cream.getRandomColor();
+    }
+
+    $(v).css("border", "1px solid " + cream.tagColors[$(v).data("q")]);
+    //$(v).css("color", cream.contrast(cream.tagColors[$(v).data("q")], "#FFFFFF", "#000000"));
+  });
+};
+
+// https://stackoverflow.com/a/41491220
+cream.contrast = (bgColor, lightColor, darkColor) => {
+  var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
+  var r = parseInt(color.substring(0, 2), 16); // hexToR
+  var g = parseInt(color.substring(2, 4), 16); // hexToG
+  var b = parseInt(color.substring(4, 6), 16); // hexToB
+  var uicolors = [r / 255, g / 255, b / 255];
+  var c = uicolors.map((col) => {
+    if (col <= 0.03928) {
+      return col / 12.92;
+    }
+    return Math.pow((col + 0.055) / 1.055, 2.4);
+  });
+  var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
+  return (L > 0.179) ? darkColor : lightColor;
+}
 
 cream.search = async query => {
   $("#view").text("Please wait...");
@@ -250,6 +293,8 @@ $(document).ready(async() => {
   html += "</div>";
 
   $("#contributors").append(html);
+
+  cream.applyTagColors();
 });
 
 cream.sort = ["title", "asc"];

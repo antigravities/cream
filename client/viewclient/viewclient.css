@@ -43,7 +43,7 @@
 }
 
 .col-sm>a {
-  color: black;
+  color: white;
   text-decoration: none !important;
 }
 
@@ -71,6 +71,16 @@
 
 .sorter {
   float: right;
+  margin-right: 5px;
+}
+
+.sorter>button {
+  background-color: #105E7F !important;
+  border-color: #105E7F !important;
+}
+
+.show>.btn-secondary.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem rgba(16, 94, 127, 0.5) !important;
 }
 
 .paginator.back {
@@ -86,7 +96,10 @@
   line-height: 31px;
 }
 
-.overwhelmingly-positive, .very-positive, .mostly-positive, .positive {
+.overwhelmingly-positive,
+.very-positive,
+.mostly-positive,
+.positive {
   color: #66C0F4;
 }
 
@@ -94,6 +107,31 @@
   color: #B9A074;
 }
 
-.overwhelmingly-negative, .very-negative, .mostly-negative, .negative {
+.overwhelmingly-negative,
+.very-negative,
+.mostly-negative,
+.negative {
   color: #A34C25;
+}
+
+[colorable] {
+  border-radius: 5px;
+  border: 1px solid black;
+  padding: 5px;
+  line-height: calc(20px + 1em);
+  color: white;
+}
+
+[colorable]:hover {
+  text-decoration: none;
+  color: white;
+}
+
+nav.navbar {
+  background-color: #1A394E !important;
+}
+
+body {
+  color: white;
+  background-color: black;
 }

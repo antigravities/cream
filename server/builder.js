@@ -168,9 +168,9 @@ module.exports = (database) => {
           });
 
           // skip non-discounted apps
-          //if (i.discount === 0) return;
+          if (i.discount === 0) return;
           // skip free apps
-          //if (i.oprice === 0) return;
+          if (i.oprice === 0) return;
 
           // tags are stored comma separated in the DB
           let tags = i.tags !== null ? i.tags.split(", ") : [];
@@ -254,7 +254,7 @@ module.exports = (database) => {
         console.log("Building views...", 0);
         finished.views = {};
         finished.views.all = () => Object.values(finished.apps);
-        finished.views.recommended = () => finished.recommendations
+        finished.views.recommended = () => finished.recommendations;
         finished.views.random = () => {
           let f = [];
 
@@ -263,7 +263,7 @@ module.exports = (database) => {
           }
 
           return f;
-        }
+        };
         finished.views.featured = () => finished.featured;
 
         console.log("[Builder] Finished! Found " + Object.keys(finished.apps).length + " apps across " + Object.keys(tags).length + " tags");
