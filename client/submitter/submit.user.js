@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.2.4
+// @version      0.2.5
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -12,8 +12,7 @@
 // @grant        unsafeWindow
 // ==/UserScript==
 
-// 0.2.4
-// - handle Series apps
+// 0.2.5
 // - submit picks by clicking ⁂ in search results
 
 /* eslint radix: "as-needed" */
