@@ -245,7 +245,7 @@ $(document).ready(async() => {
   let volunteers = homebuild.volunteers;
   cream.recommendations = homebuild.recommendations;
 
-  cream.buildFeatured(homebuild.featured);
+  if( homebuild.featured.length > 0 ) cream.buildFeatured(homebuild.featured);
 
   cream.buildQueryResult(cream.recommendations, "Recommended", 0);
 
