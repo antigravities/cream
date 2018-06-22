@@ -232,8 +232,14 @@ cream.bindFilters = () => {
   });
 };
 
+cream.dtags = "Action,Adventure,Casual,Singleplayer,Simulation,Strategy,RPG,Great Soundtrack,Multiplayer,2D,Atmospheric,Puzzle,VR,Story Rich,Difficult,Racing,Rogue-like,Card Game,Anime,Metroidvania,Stealth,Co-op,Platformer,Indie,Survival,Visual Novel,Point & Click,Dating Sim,MOBA,MMORPG,Tower Defense".split(",").sort();
+
 $(document).ready(async() => {
   $(".pagecontrols").css("display", "none");
+
+  cream.dtags.forEach(i => {
+    $("#tags").append(`<a href="#" class="filter" data-q="${i}" colorable>${i}</a> `);
+  });
 
   let homebuild = await (await fetch("/homebuild")).json();
   let volunteers = homebuild.volunteers;

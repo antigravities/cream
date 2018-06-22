@@ -135,3 +135,7 @@ body {
   color: white;
   background-color: black;
 }
+
+.modal-dialog {
+  color: black;
+}
