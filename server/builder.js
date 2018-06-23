@@ -169,9 +169,9 @@ module.exports = (database) => {
           });
 
           // skip non-discounted apps
-          //if (i.discount === 0) return;
+          if (i.discount === 0) return;
           // skip free apps
-          //if (i.oprice === 0) return;
+          if (i.oprice === 0) return;
 
           // tags are stored comma separated in the DB
           let tags = i.tags !== null ? i.tags.split(", ") : [];
