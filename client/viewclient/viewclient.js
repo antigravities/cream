@@ -181,6 +181,16 @@ cream.applyTagColors = () => {
   });
 };
 
+cream.hasNonTag = (query) => {
+  let hasNonTag = false;
+
+  query.split(" ").forEach(i => {
+    if (!/(\+?)tags\:([A-Za-z\-\&0-9]*)/g.test(i)) hasNonTag = true;
+  });
+
+  return hasNonTag;
+}
+
 cream.search = async query => {
   $("#view").text("Please wait...");
   $("#list").html("");
@@ -188,7 +198,7 @@ cream.search = async query => {
   if (query.trim() !== "") {
     $(".pagecontrols").css("display", "none");
     let res = await (await fetch("/search/" + encodeURIComponent(query))).json();
-    cream.buildQueryResult(res.result, "Search: " + cream.p(res.query) + " (" + res.result.length + " apps)", 0, res.is_tag);
+    cream.buildQueryResult(res.result, "Search: " + cream.p(res.query) + " (" + res.result.length + " apps)", 0, !cream.hasNonTag(res.query));
   }
   else {
     cream.buildQueryResult(cream.recommendations ? cream.recommendations : [], "Recommended", 0);
