@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
   <!-- // End Bootstrap -->
-  
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="/assets/css">
@@ -17,7 +17,7 @@
   <script src="https://s3.cutie.cafe/shared/fuse-3.0.4.min.js"></script>
   <script src="https://s3.cutie.cafe/shared/babel-polyfill-6.26.0.min.js"></script>
 
-  <script src="/assets/js"></script>
+  <script src="/assets/js.now"></script>
   <title>
     SteamSal.es
   </title>
@@ -42,23 +42,27 @@
       </ul>
     </div>
   </nav>
+  <img src="https://s3.cutie.cafe/steamsales/transparent2018.png" style="float: left; width: calc((100vw - 1140px) / 2);" class="d-none d-xl-block"></img>
 
   <div class="container">
-    <img src="https://s3.cutie.cafe/steamsales/summer2018.png" style="width: 100%;"></img>
+    <img src="https://s3.cutie.cafe/steamsales/transparent2018.png" style="height: 200px;" class="d-block d-xl-none"></img>
     <div class="row">
       <div id="tags" class="col">
 
       </div>
       <div class="col">
-        <a href="#" class="filter" data-q="$1" colorable>Under $1</a>
-        <a href="#" class="filter" data-q="$5" colorable>Under $5</a>
-        <a href="#" class="filter" data-q="$10" colorable>Under $10</a>
-        <a href="#" class="filter" data-q="50%" colorable>50% off</a>
-        <a href="#" class="filter" data-q="75%" colorable>75% off</a>
-        <a href="#" class="filter" data-q="90%" colorable>90% off</a>
-        <a href="#" class="filter" data-q="windows" colorable>Windows</a>
-        <a href="#" class="filter" data-q="macos" colorable>macOS</a>
-        <a href="#" class="filter" data-q="linux" colorable>Linux/SteamOS</a><br><br> Show: <a href="#" class="filter" data-q="all">All</a> &middot; <a href="#" class="filter" data-q="recommended">Recommended</a> &middot; <a href="#" class="filter" data-q="random">Random</a>
+        <a href="#" class="filter" data-q="+tags:1" colorable>Under $1</a>
+        <a href="#" class="filter" data-q="+tags:5" colorable>Under $5</a>
+        <a href="#" class="filter" data-q="+tags:10" colorable>Under $10</a>
+        <a href="#" class="filter" data-q="+tags:50" colorable>50% off</a>
+        <a href="#" class="filter" data-q="+tags:75" colorable>75% off</a>
+        <a href="#" class="filter" data-q="+tags:90" colorable>90% off</a>
+        <a href="#" class="filter" data-q="+tags:windows" colorable>Windows</a>
+        <a href="#" class="filter" data-q="+tags:macos" colorable>macOS</a>
+        <a href="#" class="filter" data-q="+tags:linux" colorable>Linux/SteamOS</a><br><br>
+        <div>
+          Show: <a href="#" class="filter" data-q="all" ca>All</a> &middot; <a href="#" class="filter" data-q="recommended" ca>Recommended</a> &middot; <a href="#" class="filter" data-q="random" ca>Random</a>
+        </div>
       </div>
     </div>
   </div>

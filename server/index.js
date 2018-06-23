@@ -263,7 +263,7 @@
     if (build.views[req.params.what]) return respond(res, true, { query: req.params.what, result: build.views[req.params.what](), is_tag: true });
     if (build.cachedQueries[req.params.what]) return respond(res, true, { query: req.params.what, result: build.cachedQueries[req.params.what], is_tag: false });
     else {
-      build.cachedQueries[req.params.what] = build.fuse.search(req.params.what).slice(0, 100);
+      build.cachedQueries[req.params.what] = build.search(req.params.what);
       return respond(res, true, { query: req.params.what, result: build.cachedQueries[req.params.what], is_tag: false });
     }
   }));

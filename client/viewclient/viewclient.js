@@ -98,11 +98,11 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
     let title = (i && i.title) ? i.title : "???";
     let dev = (i && i.developer) ? i.developer : "???";
     let pub = (i && i.publisher) ? i.publisher : "???";
-    let tags = (i && i.tags) ? i.tags : ["..."];
+    let tags = (i && i.tags) ? i.tags.split(", ") : ["..."];
     let rating = cream.ratings[i.reviews] ? cream.ratings[i.reviews] : cream.ratings[8];
 
-    dev = `<a href="#" class="filter" data-q="${dev}">${cream.p(dev)}</a>`;
-    pub = `<a href="#" class="filter" data-q="${pub}">${cream.p(pub)}</a>`;
+    dev = `<a href="#" class="filter" data-q="+developer:${dev}">${cream.p(dev)}</a>`;
+    pub = `<a href="#" class="filter" data-q="+publisher:${pub}">${cream.p(pub)}</a>`;
 
     let attr = (dev == pub) ? dev : dev + " / " + pub;
 
@@ -114,7 +114,7 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
       discount += `$${i.price}`;
     }
 
-    tags = tags.map(i => `<a href="#" class="filter" data-q="${i}" data-tag="${i}" colorable>${i}</a>`);
+    tags = tags.map(i => `<a href="#" class="filter" data-q="+tags:${i}" colorable>${cream.reformatTag(i)}</a>`);
 
     html += `
       <div class="col-sm">
@@ -137,7 +137,12 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
 
   $("#list").html(html);
 
-  $("#view").text(view);
+  view = cream.p(view);
+  view = view.replace(/(\+?)tags\:([A-Za-z\-\&0-9]*)/g, function (a, b, c) {
+    return `<a href="#" colorable class="remove" data-q="${b}tags:${c}">${cream.reformatTag(c)}</a>`
+  });
+
+  $("#view").html(view);
 
   cream.bindFilters();
   cream.applyTagColors();
@@ -153,7 +158,7 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
 
 cream.tagColors = {};
 
-cream.hex = "01234567890ABCDEF"
+cream.hex = "01234567890ABCDEF";
 cream.getRandomColor = () => {
   let res = "";
 
@@ -162,7 +167,7 @@ cream.getRandomColor = () => {
   }
 
   return "#" + res;
-}
+};
 
 cream.applyTagColors = () => {
   $("[colorable]").each((i, v) => {
@@ -176,26 +181,10 @@ cream.applyTagColors = () => {
   });
 };
 
-// https://stackoverflow.com/a/41491220
-cream.contrast = (bgColor, lightColor, darkColor) => {
-  var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
-  var r = parseInt(color.substring(0, 2), 16); // hexToR
-  var g = parseInt(color.substring(2, 4), 16); // hexToG
-  var b = parseInt(color.substring(4, 6), 16); // hexToB
-  var uicolors = [r / 255, g / 255, b / 255];
-  var c = uicolors.map((col) => {
-    if (col <= 0.03928) {
-      return col / 12.92;
-    }
-    return Math.pow((col + 0.055) / 1.055, 2.4);
-  });
-  var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
-  return (L > 0.179) ? darkColor : lightColor;
-}
-
 cream.search = async query => {
   $("#view").text("Please wait...");
   $("#list").html("");
+
   if (query.trim() !== "") {
     $(".pagecontrols").css("display", "none");
     let res = await (await fetch("/search/" + encodeURIComponent(query))).json();
@@ -227,25 +216,42 @@ cream.bindFilters = () => {
   $(".filter[data-q]").off();
 
   $(".filter[data-q]").on("click", e => {
-    $("#q").val($(e.currentTarget).data("q"));
+    $("#q").val((($(e.currentTarget).is("[ca]") ? "" : $("#q").val() + " ") + $(e.currentTarget).data("q")).trim().trimStart());
+    cream.search($("#q").val());
+  });
+
+  $(".remove[data-q]").on("click", e => {
+    $("#q").val(($("#q").val().toLowerCase().replace($(e.currentTarget).data("q"), "")).trim().trimStart());
     cream.search($("#q").val());
   });
 };
 
-cream.dtags = "Action,Adventure,Casual,Singleplayer,Simulation,Strategy,RPG,Great Soundtrack,Multiplayer,2D,Atmospheric,Puzzle,VR,Story Rich,Difficult,Racing,Rogue-like,Card Game,Anime,Metroidvania,Stealth,Co-op,Platformer,Indie,Survival,Visual Novel,Point & Click,Dating Sim,MOBA,MMORPG,Tower Defense".split(",").sort();
+cream.reformatTag = tag => {
+  return tag.replace(/\-/g, " ").replace(/\&/g, " & ").replace(/ (.)|^(.)/g, (a, b, c) => {
+    try {
+      console.log(a, b, c);
+      return a.toUpperCase() === undefined ? a : a.toUpperCase();
+    }
+    catch (e) {
+      return a;
+    }
+  });
+}
+
+cream.dtags = "Action,Adventure,Casual,Singleplayer,Simulation,Strategy,RPG,Great-Soundtrack,Multiplayer,2D,Atmospheric,Puzzle,VR,Story-Rich,Difficult,Racing,Rogue-like,Card-Game,Anime,Metroidvania,Stealth,Co-op,Platformer,Indie,Survival,Visual-Novel,Point&Click,Dating-Sim,MOBA,MMORPG,Tower-Defense".split(",").sort();
 
 $(document).ready(async() => {
   $(".pagecontrols").css("display", "none");
 
   cream.dtags.forEach(i => {
-    $("#tags").append(`<a href="#" class="filter" data-q="${i}" colorable>${i}</a> `);
+    $("#tags").append(`<a href="#" class="filter" data-q="+tags:${i.toLowerCase()}" colorable>${cream.reformatTag(i)}</a> `);
   });
 
   let homebuild = await (await fetch("/homebuild")).json();
   let volunteers = homebuild.volunteers;
   cream.recommendations = homebuild.recommendations;
 
-  if( homebuild.featured.length > 0 ) cream.buildFeatured(homebuild.featured);
+  if (homebuild.featured.length > 0) cream.buildFeatured(homebuild.featured);
 
   cream.buildQueryResult(cream.recommendations, "Recommended", 0);
 

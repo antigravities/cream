@@ -46,7 +46,8 @@ module.exports = (database) => {
       const config = JSON.parse(fs.readFileSync("./config.json"));
       const request = require("request-promise");
       const cheerio = require("cheerio");
-      const Fuse = require("fuse.js");
+      //const Fuse = require("fuse.js");
+      const Lunr = require("lunr");
 
       bot.on("loggedOn", async() => {
         console.log("[Builder] Logged on!");
@@ -117,14 +118,14 @@ module.exports = (database) => {
                     else if (dbapp.price === 0) atags.push("Free");
                     else {
                       if (dbapp.price === 0) atags.push("Free");
-                      if (dbapp.price < 1 && dbapp.price !== 0) atags.push("$1");
-                      if (dbapp.price < 5) atags.push("$5");
-                      if (dbapp.price < 10) atags.push("$10");
+                      if (dbapp.price < 1 && dbapp.price !== 0) atags.push("1");
+                      if (dbapp.price < 5) atags.push("5");
+                      if (dbapp.price < 10) atags.push("10");
                     }
 
-                    if (dbapp.discount >= 50) atags.push("50%");
-                    if (dbapp.discount >= 75) atags.push("75%");
-                    if (dbapp.discount >= 90) atags.push("90%");
+                    if (dbapp.discount >= 50) atags.push("50");
+                    if (dbapp.discount >= 75) atags.push("75");
+                    if (dbapp.discount >= 90) atags.push("90");
 
                     if (dbapp.discount > 0) atags.push("Sale");
 
@@ -168,9 +169,9 @@ module.exports = (database) => {
           });
 
           // skip non-discounted apps
-          if (i.discount === 0) return;
+          //if (i.discount === 0) return;
           // skip free apps
-          if (i.oprice === 0) return;
+          //if (i.oprice === 0) return;
 
           // tags are stored comma separated in the DB
           let tags = i.tags !== null ? i.tags.split(", ") : [];
@@ -182,7 +183,7 @@ module.exports = (database) => {
 
           // ok looks good!
           obj[i.appid] = i;
-          obj[i.appid].tags = tags;
+          obj[i.appid].tags = tags.join(", ");
 
           // review scores
           obj[i.appid].reviews = ratings[obj[i.appid].reviews];
@@ -266,11 +267,32 @@ module.exports = (database) => {
         };
         finished.views.featured = () => finished.featured;
 
+        console.log("Building search engine...");
+        finished.lunr = Lunr(function () {
+          this.field("appid");
+          this.field("title");
+          this.field("developer");
+          this.field("publisher");
+          this.field("tags");
+
+          this.ref("appid");
+
+          Object.values(finished.apps).forEach(i => this.add(i));
+        });
+        
+        finished.search = (query) => {
+          try {
+            return finished.lunr.search(query).map(i => finished.apps[i.ref]);
+          } catch(e){
+            return [];
+          }
+        }
+
         console.log("[Builder] Finished! Found " + Object.keys(finished.apps).length + " apps across " + Object.keys(tags).length + " tags");
 
         finished.cachedQueries = {};
 
-        finished.fuse = new Fuse(Object.values(finished.apps), { keys: ["appid", "title", "developer", "publisher"], shouldSort: true });
+        //finished.lunr = new Fuse(Object.values(finished.apps), { keys: ["appid", "title", "developer", "publisher"], shouldSort: true });
 
         resolve(finished);
       });
