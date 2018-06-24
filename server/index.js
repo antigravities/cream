@@ -237,7 +237,7 @@
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              content: "I recommend **" + build.apps[appId].title + "**!\n\n" + (build.apps[appId].discount > 0 ? "~~$" + build.apps[appId].oprice + "~~ **-" + build.apps[appId].discount + "%** " : "") + "**$" + build.apps[appId].price + "**\n*" + build.apps[appId].tags.join(", ") + "*\nhttps://store.steampowered.com/app/" + appId,
+              content: "I recommend **" + build.apps[appId].title + "**!\n\n" + (build.apps[appId].discount > 0 ? "~~$" + build.apps[appId].oprice + "~~ **-" + build.apps[appId].discount + "%** " : "") + "**$" + build.apps[appId].price + "**\n*" + build.apps[appId].tags + "*\nhttps://store.steampowered.com/app/" + appId,
               username: persona.name,
               avatar_url: persona.avatar
             })
