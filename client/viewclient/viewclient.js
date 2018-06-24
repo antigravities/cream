@@ -190,6 +190,14 @@ cream.applyTagColors = () => {
 
     $(v).css("border", "1px solid " + cream.tagColors[$(v).data("q")]);
     //$(v).css("color", cream.contrast(cream.tagColors[$(v).data("q")], "#FFFFFF", "#000000"));
+
+    $(v).on("mouseover", () => {
+      $(v).css("background-color", cream.tagColors[$(v).data("q")] + "66");
+    });
+
+    $(v).on("mouseout", () => {
+      $(v).css("background-color", "");
+    });
   });
 };
 
