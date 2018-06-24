@@ -139,3 +139,7 @@ body {
 .modal-dialog {
   color: black;
 }
+
+.changeop {
+  border-bottom: 1px dotted white;
+}

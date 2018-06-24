@@ -14,6 +14,12 @@ cream.ratings = {
   8: "not-enough-reviews"
 };
 
+cream.opdesc = {
+  "+": "This tag MUST be in the list",
+  "-": "This tag MUST NOT be in the list",
+  "": "This tag MAY optionally be in the list"
+};
+
 cream.p = (str) => {
   return DOMPurify.sanitize(str, { SAFE_FOR_JQUERY: true });
 };
@@ -75,12 +81,12 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
     apps = apps.sort((a, b) => {
       if (cream.sort[1] == "asc") {
         if (a[cream.sort[0]] > b[cream.sort[0]]) return 1;
-        else if (a[cream.sort[0]] == b[cream.sort[0]]) return 0;
+        else if (a[cream.sort[0]] === b[cream.sort[0]]) return 0;
         else return -1;
       }
       else {
         if (a[cream.sort[0]] < b[cream.sort[0]]) return 1;
-        else if (a[cream.sort[0]] == b[cream.sort[0]]) return 0;
+        else if (a[cream.sort[0]] === b[cream.sort[0]]) return 0;
         else return -1;
       }
     });
@@ -138,8 +144,14 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
   $("#list").html(html);
 
   view = cream.p(view);
-  view = view.replace(/(\+?)tags\:([A-Za-z\-\&0-9]*)/g, function (a, b, c) {
-    return `<a href="#" colorable class="remove" data-q="${b}tags:${c}">${cream.reformatTag(c)}</a>`
+  view = view.replace(/(\+|\-?)tags\:([A-Za-z\-\&0-9]*)/g, function (a, b, c) {
+    let operation = "";
+
+    if (b === "+") operation = "AND";
+    else if (b === "-") operation = "NOT";
+    else operation = "OR";
+
+    return `<a href="#" colorable class="remove" data-q="${b}tags:${c}"><span class="changeop" data-op="${b}" title="${cream.opdesc[b]}">${operation}</span> ${cream.reformatTag(c)}</a>`
   });
 
   $("#view").html(view);
@@ -198,7 +210,7 @@ cream.search = async query => {
   if (query.trim() !== "") {
     $(".pagecontrols").css("display", "none");
     let res = await (await fetch("/search/" + encodeURIComponent(query))).json();
-    cream.buildQueryResult(res.result, "Search: " + cream.p(res.query) + " (" + res.result.length + " apps)", 0, !cream.hasNonTag(res.query));
+    cream.buildQueryResult(res.result, "Search: " + cream.p(res.query) + " (" + res.result.length + " apps)", 0, !cream.hasNonTag(res.query) || cream.is_tag);
   }
   else {
     cream.buildQueryResult(cream.recommendations ? cream.recommendations : [], "Recommended", 0);
@@ -226,12 +238,29 @@ cream.bindFilters = () => {
   $(".filter[data-q]").off();
 
   $(".filter[data-q]").on("click", e => {
-    $("#q").val((($(e.currentTarget).is("[ca]") ? "" : $("#q").val() + " ") + $(e.currentTarget).data("q")).trim().trimStart());
+    e.preventDefault();
+    $("#q").val((($(e.currentTarget).is("[ca]") ? "" : $("#q").val() + " ") + $(e.currentTarget).data("q")).trim().trimStart().replace(/ {2,}/g, " "));
     cream.search($("#q").val());
   });
 
   $(".remove[data-q]").on("click", e => {
-    $("#q").val(($("#q").val().toLowerCase().replace($(e.currentTarget).data("q"), "")).trim().trimStart());
+    e.preventDefault();
+    $("#q").val(($("#q").val().toLowerCase().replace($(e.currentTarget).data("q"), "")).trim().trimStart().replace(/ {2,}/g, " "));
+    cream.search($("#q").val());
+  });
+
+  $(".remove[data-q] > .changeop[data-op]").on("click", e => {
+    e.preventDefault();
+    let op = $(e.currentTarget).data("op");
+    let newOp = op;
+    let prevQ = $(e.currentTarget).parent().data("q");
+
+    if (op === "-") newOp = "+";
+    else if (op === "+") newOp = "";
+    else newOp = "-";
+
+    let newQ = prevQ.replace(op, newOp);
+    $("#q").val($("#q").val().replace(prevQ, newQ).replace(/ {2,}/g, " "));
     cream.search($("#q").val());
   });
 };
