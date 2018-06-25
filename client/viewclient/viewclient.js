@@ -167,7 +167,7 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
 
   $(".pagecontrols").css("display", "block");
 
-  if( $(window).width() <= 430 ) document.querySelector("#view").scrollIntoView({ block: "start", behavior: "smooth" });
+  if ($(window).width() <= 430) document.querySelector("#view").scrollIntoView({ block: "start", behavior: "smooth" });
 };
 
 cream.tagColors = {};
@@ -191,7 +191,6 @@ cream.applyTagColors = () => {
     }
 
     $(v).css("border", "1px solid " + cream.tagColors[$(v).data("q")]);
-    //$(v).css("color", cream.contrast(cream.tagColors[$(v).data("q")], "#FFFFFF", "#000000"));
 
     $(v).on("mouseover", () => {
       $(v).css("background-color", cream.tagColors[$(v).data("q")] + "66");
@@ -249,8 +248,18 @@ cream.bindFilters = () => {
   $(".filter[data-q]").off();
 
   $(".filter[data-q]").on("click", e => {
+    console.log($("#q").val());
+
     e.preventDefault();
-    $("#q").val((($(e.currentTarget).is("[ca]") ? "" : $("#q").val() + " ") + $(e.currentTarget).data("q")).trim().trimStart().replace(/ {2,}/g, " "));
+    if ($("#q").val().indexOf($(e.currentTarget).data("q")) > -1) {
+      $("#q").val($("#q").val().replace($(e.currentTarget).data("q"), "").trim());
+    }
+    else {
+      $("#q").val((($(e.currentTarget).is("[ca]") ? "" : $("#q").val() + " ")) + $(e.currentTarget).data("q"));
+    }
+
+    $("#q").val($("#q").val().trim().trimStart().replace(/ {2,}/g, " "));
+
     cream.search($("#q").val());
   });
 
