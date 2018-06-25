@@ -166,6 +166,8 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
   else $(".next").css("display", "block");
 
   $(".pagecontrols").css("display", "block");
+
+  document.querySelector("#view").scrollIntoView();
 };
 
 cream.tagColors = {};
@@ -213,6 +215,7 @@ cream.hasNonTag = (query) => {
 
 cream.search = async query => {
   $("#view").text("Please wait...");
+  document.querySelector("#view").scrollIntoView();
   $("#list").html("");
 
   if (query.trim() !== "") {
@@ -287,6 +290,16 @@ cream.reformatTag = tag => {
 
 cream.dtags = "Action,Adventure,Casual,Singleplayer,Simulation,Strategy,RPG,Great-Soundtrack,Multiplayer,2D,Atmospheric,Puzzle,VR,Story-Rich,Difficult,Racing,Rogue-like,Card-Game,Anime,Metroidvania,Stealth,Co-op,Platformer,Indie,Survival,Visual-Novel,Point&Click,Dating-Sim,MOBA,MMORPG,Tower-Defense".split(",").sort();
 
+cream.isAll = (array, what) => {
+  let i;
+
+  for (i = 0; i < array.length; i++) {
+    if (array[i] === what) break;
+  }
+
+  return i >= array.length;
+}
+
 $(document).ready(async() => {
   $(".pagecontrols").css("display", "none");
 
@@ -298,7 +311,7 @@ $(document).ready(async() => {
   let volunteers = homebuild.volunteers;
   cream.recommendations = homebuild.recommendations;
 
-  if (homebuild.featured.length > 0) cream.buildFeatured(homebuild.featured);
+  if (homebuild.featured.length > 0 && !cream.isAll(homebuild.featured, null)) cream.buildFeatured(homebuild.featured);
 
   cream.buildQueryResult(cream.recommendations, "Recommended", 0);
 
