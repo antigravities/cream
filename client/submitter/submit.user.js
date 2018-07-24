@@ -21,21 +21,73 @@
 (function () {
   var lambda;
   var key;
+  var automate = localStorage.getItem('automate');
+  var notUsd = localStorage.getItem('notUsd');
+  const DELAY = 3000;
+
+  if(localStorage.getItem('automate') === null) localStorage.setItem('automate', 'false');
+
+  if(localStorage.getItem('notUsd') === null) notUsd = localStorage.setItem('notUsd', 'false');
+
+  console.log("automate: "+automate);
+  console.log("notUsd: "+notUsd);
 
   function error(info) {
-    if (info === undefined) info = "Cream experienced an internal error.";
+    var autoMsgTime;
+    var autoMsgBtn;
 
-    ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure").fail(function () {
-      GM_deleteValue("lambda");
-      GM_deleteValue("apikey");
-      history.go(0);
+    if(automate == 'true') {
+        autoMsgTime = "Retrying in "+DELAY+"ms.";
+        autoMsgBtn = "Stop retrying";
+    }
+    else autoMsgTime = "";
+
+    if (info === undefined) info = "Cream experienced an internal error.<br>"+autoMsgTime;
+
+
+    var dialog = ShowConfirmDialog("Cream Error", info, "Reconfigure", "Close", autoMsgBtn).done(function (choice) {
+        if(choice == 'SECONDARY'){
+            automate = localStorage.setItem('automate', 'false');
+            location.reload();
+        } else {
+            GM_deleteValue("lambda");
+            GM_deleteValue("apikey");
+            localStorage.setItem('automate', 'false');
+            history.go(0);
+        }
     });
+
+    if(automate == 'true') {
+      setTimeout(function(){
+            dialog.Dismiss();
+            scrape();
+          },DELAY);
+    }
   }
+
+
+
+  function next() {
+    if((notUsd == 'true') && (window.location.search.indexOf('&cc=us&l=english') == -1)) window.location.search += '&cc=us&l=english';
+    else scrape();
+  }
+
+  function pressbtn(){ //next page
+        var classes = document.getElementsByClassName('pagebtn');
+        var rightbtn;
+        if(window.location.search.indexOf('page') == -1) rightbtn = classes[0];
+        else rightbtn = classes[1];
+        rightbtn.click();
+        //SearchLinkClick(rightbtn); also works
+        next();
+    }
 
   function scrape() {
     try {
       var dialog = ShowBlockingWaitDialog("Cream", "<p id='cream_status'></p>");
       var logdiv = document.getElementById("cream_status");
+
+
 
       logdiv.innerText = "Gathering data...";
 
@@ -59,7 +111,10 @@
           else if (price === "") price = -1;
           else if (price.indexOf("Season") > -1) price = -1; // temporary workaround for Series apps
           else if (price[0] != "$") {
+            localStorage.setItem('notUsd', 'true');
+            localStorage.setItem('automate', 'false');
             dialog.Dismiss();
+            if(automate == 'true') location.reload();
             ShowConfirmDialog("Cream Error", "Your Steam Store prices are not in USD. Please log out and append ?cc=us&l=english to search URLs.", "Log out for me", "Close").done(function () {
               Logout();
               return;
@@ -118,7 +173,15 @@
           try {
             var rt = JSON.parse(data.responseText);
             if (rt === "Invalid API key") error(rt);
-            else ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
+            else {
+                var alert = ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
+                if(automate == 'true') {
+                    setTimeout(function() {
+                        alert.Dismiss();
+                        pressbtn();
+                    }, DELAY);
+                }
+            }
           }
           catch (e) {
             error();
@@ -147,10 +210,22 @@
       key = GM_getValue("apikey");
       var elem = document.createElement("div");
       elem.setAttribute("class", "block");
-
       elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a>";
       elem.addEventListener("click", scrape);
       jQuery(elem).insertBefore(jQuery(".rightcol").children()[0]);
+
+      var auto = document.createElement("div");
+      auto.setAttribute("class", "block");
+      var autoBtnMsg;
+      if(automate == 'true') autoBtnMsg = "Stop";
+      else autoBtnMsg = "Automate";
+      auto.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span>"+autoBtnMsg+"</span></a>";
+      jQuery(auto).insertBefore(jQuery(".rightcol").children()[1]);
+      auto.addEventListener("click", function () {
+        if(automate == 'true') localStorage.setItem('automate', 'false');
+        else localStorage.setItem('automate', 'true');
+        history.go(0);
+      });
 
       var resetButton = document.createElement("div");
       resetButton.setAttribute("style", "display: inline");
@@ -161,6 +236,7 @@
         e.preventDefault();
         GM_deleteValue("lambda");
         GM_deleteValue("apikey");
+        localStorage.setItem('automate', 'false');
         history.go(0);
       });
 
@@ -190,6 +266,7 @@
           }
         });
       });
+      if(automate == 'true') next();
     }
   });
 })();
