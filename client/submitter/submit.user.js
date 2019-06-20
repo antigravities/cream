@@ -1,7 +1,7 @@
-// ==UserScript==
+//// ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.2.6
+// @version      0.3.2
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -45,7 +45,7 @@
         payload = Array.prototype.slice.call(document.querySelectorAll("a.search_result_row[data-ds-appid]:not([data-ds-packageid])")).map((i) => {
           let g = {};
           g.appid = parseInt(i.getAttribute("data-ds-appid"));
-          g.title = i.querySelector(".title").innerText.trim().replace(" ⁂", "");
+          g.title = i.querySelector(".title").innerText.trim().replace(" SubmitPick", "");
 
           let price;
 
@@ -164,7 +164,7 @@
         history.go(0);
       });
 
-      jQuery("a.search_result_row[data-ds-appid]:not([data-ds-packageid]) > .responsive_search_name_combined > .search_name > .title").append(" <a class='pick-submit' title='Submit as a SteamSal.es pick'>&#x2042;</a>").parent().removeClass("ellipsis");
+      jQuery("a.search_result_row[data-ds-appid]:not([data-ds-packageid]) > .responsive_search_name_combined > .search_name > .title").append(" <a class='pick-submit' title='Submit as a SteamSal.es pick'>SubmitPick</a>").parent().removeClass("ellipsis");
 
       jQuery(".pick-submit").on("click", function (e) {
         e.preventDefault();

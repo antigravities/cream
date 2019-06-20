@@ -77,6 +77,11 @@
     }
   });
 
+  a.get("/assets/tonights-the-night.webm", (req, res) => {
+    res.writeHead(200, { "Content-Type": "video/webm" });
+    res.end(fs.readFileSync("../client/viewclient/tonights-the-night.webm"));
+  });
+
   a.get("/assets/:asset", (req, res) => {
     let type = "text/plain";
     let code = 404;
@@ -279,6 +284,11 @@
       recommendations: build.recommendations
     });
   }));
+
+  a.get("/submit.user.js", (req, res) => {
+    res.writeHead(200, { "Content-Type": "text/javascript" });
+    res.end(fs.readFileSync("../client/submitter/submit.user.js"));
+  });
 
   a.listen(3000);
 
