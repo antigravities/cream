@@ -2,7 +2,7 @@
 
 window.cream = {};
 
-window.cream.pricetag = "_eur";
+cream.pricetag = localStorage.getItem("pricetag") || "";
 
 cream.ratings = {
   0: "overwhelmingly-positive",
@@ -37,8 +37,8 @@ cream.formatForCurrency = (price, currency) => {
 cream.buildFeaturedWidget = (element, appid, app) => {
   var discount = "???";
   if (app != undefined) {
-    if (app.discount < 1) discount = window.cream.formatForCurrency(app["price" + window.cream.pricetag], window.cream.pricetag.substring(1));
-    else discount = `<b>-${app.discount}%</b> ${window.cream.formatForCurrency(app["price" + window.cream.pricetag], window.cream.pricetag.substring(1))}`;
+    if (app.discount < 1) discount = cream.formatForCurrency(app["price" + cream.pricetag], cream.pricetag.substring(1));
+    else discount = `<b>-${app.discount}%</b> ${cream.formatForCurrency(app["price" + cream.pricetag], cream.pricetag.substring(1))}`;
   }
 
   $(element).html(`
@@ -123,11 +123,11 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
     let attr = (dev == pub) ? dev : dev + " / " + pub;
 
     let discount = "";
-    if (i["price" + window.cream.pricetag] === 0) discount = "Free";
-    else if (i["price" + window.cream.pricetag] < 0) discount = "No Price";
+    if (i["price" + cream.pricetag] === 0) discount = "Free";
+    else if (i["price" + cream.pricetag] < 0) discount = "No Price";
     else {
-      if (i.discount > 0) discount = `<b>-${i["discount" + window.cream.pricetag]}%</b><br>`;
-      discount += window.cream.formatForCurrency(i["price" + window.cream.pricetag], window.cream.pricetag.substring(1));
+      if (i.discount > 0) discount = `<b>-${i["discount" + cream.pricetag]}%</b><br>`;
+      discount += cream.formatForCurrency(i["price" + cream.pricetag], cream.pricetag.substring(1));
     }
 
     tags = tags.map(i => `<a href="#" class="filter" data-q="+tags:${i}" colorable>${cream.reformatTag(i)}</a>`);
@@ -258,8 +258,6 @@ cream.bindFilters = () => {
   $(".filter[data-q]").off();
 
   $(".filter[data-q]").on("click", e => {
-    console.log($("#q").val());
-
     e.preventDefault();
     if ($("#q").val().indexOf($(e.currentTarget).data("q")) > -1) {
       $("#q").val($("#q").val().replace($(e.currentTarget).data("q"), "").trim());
@@ -298,7 +296,6 @@ cream.bindFilters = () => {
 cream.reformatTag = tag => {
   return tag.replace(/\-/g, " ").replace(/\&/g, " & ").replace(/ (.)|^(.)/g, (a, b, c) => {
     try {
-      console.log(a, b, c);
       return a.toUpperCase() === undefined ? a : a.toUpperCase();
     }
     catch (e) {
@@ -319,7 +316,7 @@ cream.isAll = (array, what) => {
   return i >= array.length;
 };
 
-$(document).ready(async() => {
+$(document).ready(async () => {
   $(".pagecontrols").css("display", "none");
 
   cream.dtags.forEach(i => {
@@ -355,6 +352,10 @@ $(document).ready(async() => {
     cream.buildQueryResult(cream.cqresult, cream.cqview, 0);
   });
 
+  $(".currency").on("click", e => {
+    cream.setCurrency($(e.target).data("currency"));
+  });
+
   $(".back").on("click", cream.previousPage);
   $(".next").on("click", cream.nextPage);
 
@@ -375,7 +376,6 @@ $(document).ready(async() => {
       </div>
     `;
 
-
     if (j % 2 === 1 || j === volunteers.length - 1) {
       html += "</div>";
     }
@@ -389,3 +389,9 @@ $(document).ready(async() => {
 });
 
 cream.sort = ["title", "asc"];
+
+cream.setCurrency = currency => {
+  localStorage.setItem("pricetag", currency == "usd" ? "" : "_" + currency);
+  cream.currency = localStorage.getItem("pricetag");
+  history.go(0);
+};
