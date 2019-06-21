@@ -73,11 +73,21 @@ class Database {
     return await this._first("SELECT * FROM apps WHERE appid = ?", [app]);
   }
 
-  async addApp(table, appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter, verifier) {
-    var items = [appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter];
+  async addApp(table, appid, title, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter, verifier) {
+    var items = [appid, title, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter];
     if (table == "") items.push(verifier);
 
-    return await this._query("INSERT INTO apps" + table + " (appid, title, oprice, price, discount, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter" + (table == "" ? ", verifier" : "") + ")" + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?" + (table == "" ? ", ?" : "") + ")", items);
+    return await this._query("INSERT INTO apps" + table + " (appid, title, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, submitter" + (table == "" ? ", verifier" : "") + ")" + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?" + (table == "" ? ", ?" : "") + ")", items);
+  }
+
+  async updateApp(table, appid, title, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate){
+    var items = [ title, windows, macos, linux, htcvive, oculusrift, windowsmr, reviews, releasedate, appid ];
+    return await this._query("UPDATE apps" + table + " SET title = ?, windows = ?, macos = ?, linux = ?, htcvive = ?, oculusrift = ?, windowsmr = ?, reviews = ?, releasedate = FROM_UNIXTIME(?) WHERE appid = ?", items);
+  }
+
+  async reportPrice(table, appid, oprice, price, discount, currency){
+    var items = [oprice, price, discount, appid];
+    return await this._query("UPDATE apps" + table + " SET oprice" + currency + " = ?, price" + currency + " = ?, discount" + currency + " = ? WHERE appid = ?", items);
   }
 
   async addPick(userId, appId) {
@@ -113,7 +123,7 @@ class Database {
   }
 
   async getTaggedApps() {
-    return await this._query("SELECT appid, title, tags, oprice, price, discount, tags, developer, publisher, reviews FROM apps");
+    return await this._query("SELECT appid, title, tags, oprice, price, discount, oprice_eur, price_eur, discount_eur, tags, developer, publisher, reviews FROM apps");
   }
 
   async getUserSteamids() {

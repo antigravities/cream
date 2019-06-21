@@ -30,8 +30,8 @@ Click the new blue `submit to [your app's domain]` button in the right panel. **
 ## License
 ```
 cream - decentralized collection and innovative display of Steam game discounts and metadata
-Copyright (C) 2018 Cutie Café.
-Copyright (C) 2018 /r/Steam and contributors.
+Copyright (C) 2018-2019 Cutie Café.
+Copyright (C) 2018-2019 /r/Steam and contributors.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -2,6 +2,8 @@
 
 window.cream = {};
 
+window.cream.pricetag = "_eur";
+
 cream.ratings = {
   0: "overwhelmingly-positive",
   1: "very-positive",
@@ -24,11 +26,19 @@ cream.p = (str) => {
   return DOMPurify.sanitize(str, { SAFE_FOR_JQUERY: true });
 };
 
+cream.formatForCurrency = (price, currency) => {
+  if( currency == "eur" ){
+    return (price + "").replace(".", ",") + "€";
+  } else {
+    return "$" + price;
+  }
+}
+
 cream.buildFeaturedWidget = (element, appid, app) => {
   var discount = "???";
   if (app != undefined) {
-    if (app.discount < 1) discount = "$" + app.price;
-    else discount = `<b>-${app.discount}%</b> $${app.price}`;
+    if (app.discount < 1) discount = window.cream.formatForCurrency(app["price" + window.cream.pricetag], window.cream.pricetag.substring(1));
+    else discount = `<b>-${app.discount}%</b> ${window.cream.formatForCurrency(app["price" + window.cream.pricetag], window.cream.pricetag.substring(1))}`;
   }
 
   $(element).html(`
@@ -113,11 +123,11 @@ cream.buildQueryResult = (apps = cream.cqresult, view = cream.cqview, page = cre
     let attr = (dev == pub) ? dev : dev + " / " + pub;
 
     let discount = "";
-    if (i.price === 0) discount = "Free";
-    else if (i.price < 0) discount = "No Price";
+    if (i["price" + window.cream.pricetag] === 0) discount = "Free";
+    else if (i["price" + window.cream.pricetag] < 0) discount = "No Price";
     else {
-      if (i.discount > 0) discount = `<b>-${i.discount}%</b><br>`;
-      discount += `$${i.price}`;
+      if (i.discount > 0) discount = `<b>-${i["discount" + window.cream.pricetag]}%</b><br>`;
+      discount += window.cream.formatForCurrency(i["price" + window.cream.pricetag], window.cream.pricetag.substring(1));
     }
 
     tags = tags.map(i => `<a href="#" class="filter" data-q="+tags:${i}" colorable>${cream.reformatTag(i)}</a>`);

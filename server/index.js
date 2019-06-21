@@ -3,6 +3,9 @@
 (async() => {
   Array.prototype.isArray = true;
 
+  const verificationDisabled = process.env.VERIFICATION_DISABLED !== undefined;
+  console.log("Verification disabled: " + verificationDisabled);
+
   const express = require("express");
   const a = express();
   const h = require("express-async-handler");
@@ -42,6 +45,10 @@
     return new Date(item) != "Invalid Date";
   }
 
+  function isCurrency(item){
+    return item == "usd" || item == "eur";
+  }
+
   var fields = {
     "appid": isInt,
     "title": isString,
@@ -55,7 +62,8 @@
     "oculusrift": isBoolean,
     "windowsmr": isBoolean,
     "reviews": isString,
-    "releasedate": isDate
+    "releasedate": isDate,
+    "currency": isCurrency
   };
 
   function respond(res, ok, data) {
@@ -142,46 +150,64 @@
       for (var i = 0; i < req.body.payload.length; i++) {
         let item = req.body.payload[i];
 
-        let row = await db.getUnverifiedApp(item.appid);
+        if( ! verificationDisabled ){
+          let row = await db.getUnverifiedApp(item.appid);
 
-        if (row === null) {
-          await db.addApp("_unverified", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000, u.id);
-          //response += "Success: Thank you for adding data for app " + item.appid + "!\n";
-          discoveredAppCount++;
-        }
-        else {
-          if (row.submitter == u.id) {
-            response += "Warning: Already submitted data for " + row.appid + ". Skipping...\n";
-            warnings++;
-            continue;
+          if (row === null) {
+            await db.addApp("_unverified", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000, u.id);
+            //response += "Success: Thank you for adding data for app " + item.appid + "!\n";
+            discoveredAppCount++;
           }
-
-          Object.keys(row).forEach((i) => {
-            if (fields[i] === isBoolean) row[i] = !(!row[i]); // lol
-            if (fields[i] === isDate) {
-              item[i] = new Date(item[i]).getTime();
-              row[i] = row[i].getTime();
-            }
-          });
-
-          let wasUnverified = false;
-          let keys = Object.keys(row);
-
-          for (let i = 0; i < keys.length; i++) {
-            if (keys[i] !== "submitter" && keys[i] !== "releasedate" && row[keys[i]] !== item[keys[i]]) {
-              response += "Warning: Verification failed for appid " + item.appid + ", field " + keys[i] + " (expected: " + row[keys[i]] + ", got: " + item[keys[i]] + "). Using your changes...\n";
+          else {
+            if (row.submitter == u.id) {
+              response += "Warning: Already submitted data for " + row.appid + ". Skipping...\n";
               warnings++;
+              continue;
+            }
+
+            Object.keys(row).forEach((i) => {
+              if (fields[i] === isBoolean) row[i] = !(!row[i]); // lol
+              if (fields[i] === isDate) {
+                item[i] = new Date(item[i]).getTime();
+                row[i] = row[i].getTime();
+              }
+            });
+
+            let wasUnverified = false;
+            let keys = Object.keys(row);
+
+            for (let i = 0; i < keys.length; i++) {
+              if (keys[i] !== "submitter" && keys[i] !== "releasedate" && row[keys[i]] !== item[keys[i]]) {
+                response += "Warning: Verification failed for appid " + item.appid + ", field " + keys[i] + " (expected: " + row[keys[i]] + ", got: " + item[keys[i]] + "). Using your changes...\n";
+                warnings++;
+                await db.deleteApp("_unverified", item.appid);
+                await db.addApp("_unverified", item.appid, item.title, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000, u.id);
+                await db.reportPrice("_unverified", item.appid, item.oprice, item.price, item.discount);
+                wasUnverified = true;
+              }
+            }
+
+            if (!wasUnverified) {
               await db.deleteApp("_unverified", item.appid);
-              await db.addApp("_unverified", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000, u.id);
-              wasUnverified = true;
+              await db.deleteApp("", item.appid);
+              await db.addApp("", item.appid, item.title, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000, row.submitter, u.id);
+              await db.reportPrice("", item.appid, item.oprice, item.price, item.discount, "_" + item.currency);
+              //response += "Success: Thank you for verifying data for app " + item.appid + "!\n";
+
+              verifiedAppCount++;
             }
           }
+        } else {
+          let row = await db.getVerifiedApp(item.appid);
 
-          if (!wasUnverified) {
-            await db.deleteApp("_unverified", item.appid);
-            await db.deleteApp("", item.appid);
-            await db.addApp("", item.appid, item.title, item.oprice, item.price, item.discount, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000, row.submitter, u.id);
-            //response += "Success: Thank you for verifying data for app " + item.appid + "!\n";
+          if( row !== null ){
+            await db.updateApp("", item.appid, item.title, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000);
+            await db.reportPrice("", item.appid, item.oprice, item.price, item.discount, item.currency == "usd" ? "" : "_" + item.currency);
+
+            verifiedAppCount++;
+          } else {
+            await db.addApp("", item.appid, item.title, item.windows, item.macos, item.linux, item.htcvive, item.oculusrift, item.windowsmr, item.reviews, new Date(item.releasedate).getTime() / 1000);
+            await db.reportPrice("", item.appid, item.oprice, item.price, item.discount, item.currency == "usd" ? "" : "_" + item.currency);
 
             verifiedAppCount++;
           }

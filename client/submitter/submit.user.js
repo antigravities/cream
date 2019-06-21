@@ -1,7 +1,7 @@
 //// ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.3.2
+// @version      0.3.9
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -49,24 +49,29 @@
 
           let price;
 
-          g.oprice = i.querySelector(".search_price").innerText.trim().split("\n")[0];
-          g.oprice = isNaN(parseFloat(g.oprice.substring(1))) ? 0 : parseFloat(g.oprice.substring(1));
-
           if (i.querySelector(".search_price.discounted") === null) price = i.querySelector(".search_price").innerText.trim();
           else price = i.querySelector(".search_price.discounted").innerText.split("\n")[1].trim();
 
           if (price.indexOf("Free") > -1) price = 0.00;
           else if (price === "") price = -1;
           else if (price.indexOf("Season") > -1) price = -1; // temporary workaround for Series apps
-          else if (price[0] != "$") {
+          else if (price[0] != "$" && price[price.length-1] != "€") {
             dialog.Dismiss();
-            ShowConfirmDialog("Cream Error", "Your Steam Store prices are not in USD. Please log out and append ?cc=us&l=english to search URLs.", "Log out for me", "Close").done(function () {
+            ShowConfirmDialog("Cream Error", "Your Steam Store prices are not in USD or EUR. Please log out and append ?cc=us&l=english or ?cc=be&l=english to search URLs.", "Log out for me", "Close").done(function () {
               Logout();
               return;
             });
             throw price;
           }
-          else price = parseFloat(price.substring(1));
+          else {
+            g.currency = price[0] == "$" ? "usd" : "eur";
+            g.price = price[0] == "$" ? parseFloat(price.substring(1)) : parseFloat(price.replace(",", ".").substring(0, price.length-1));
+            
+            g.oprice = i.querySelector(".search_price").innerText.trim().split("\n")[0];
+
+            if( g.currency == "usd" ) g.oprice = isNaN(parseFloat(g.oprice.substring(1))) ? 0 : parseFloat(g.oprice.substring(1));
+            else g.oprice = isNaN(parseFloat(g.oprice.replace(",", ".").substring(0, g.oprice.length-1))) ? 0 : parseFloat(g.oprice.replace(",", ".").substring(0, g.oprice.length-1));
+          }
 
           g.discount = parseInt(i.querySelector(".search_discount").innerText.replace("-", "").replace("%", ""));
           g.discount = isNaN(g.discount) ? 0 : g.discount;
@@ -84,10 +89,12 @@
           else g.reviews = sum.getAttribute("data-tooltip-html").split("<br>")[0];
 
           g.releasedate = i.querySelector(".search_released").innerText;
-
           g.releasedate = isNaN(new Date(g.releasedate).getDate()) ? "January 1, 2030" : g.releasedate; // handle unreleased apps without a release date.
 
-          g.price = price;
+          // failsafes
+          if( ! g.currency ) g.currency = "usd";
+          if( ! g.oprice ) g.oprice = 0;
+          if( ! g.price ) g.price = 0;
 
           return g;
         });
@@ -148,7 +155,7 @@
       var elem = document.createElement("div");
       elem.setAttribute("class", "block");
 
-      elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a>";
+      elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a><br><br><input type='checkbox' id='cream_auto' style='vertical-align: middle;'></input> Auto-run Cream on all pages in this set";
       elem.addEventListener("click", scrape);
       jQuery(elem).insertBefore(jQuery(".rightcol").children()[0]);
 
