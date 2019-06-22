@@ -76,13 +76,7 @@
 
   a.get("/", (req, res) => {
     res.writeHead(200, { "Content-Type": "text/html" });
-
-    if (Date.now() > config.launch) {
-      res.end(fs.readFileSync("../client/viewclient/index.html"));
-    }
-    else {
-      res.end(fs.readFileSync("../client/viewclient/hello.html"));
-    }
+    res.end(fs.readFileSync("../client/viewclient/index.html"));
   });
 
   a.get("/assets/tonights-the-night.webm", (req, res) => {
@@ -307,7 +301,8 @@
     return respond(res, true, {
       volunteers: build.volunteers,
       featured: build.featured,
-      recommendations: build.recommendations
+      recommendations: build.recommendations,
+      sale: { start: config.launch, end: config.end, sale: config.sale_name }
     });
   }));
 

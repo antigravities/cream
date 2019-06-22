@@ -8,5 +8,7 @@
   "steam_api": "",
   "maxPicks": 5,
   "webhooks": [],
-  "launch": 0
+  "launch": 0,
+  "end": 0,
+  "sale_name": ""
 }

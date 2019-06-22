@@ -327,6 +327,22 @@ $(document).ready(async () => {
   let volunteers = homebuild.volunteers;
   cream.recommendations = homebuild.recommendations;
 
+  if( homebuild.sale.start > Date.now() ){
+    let div = document.createElement("div");
+    div.setAttribute("class", "alert alert-danger");
+    div.innerHTML = "<b>Hmmm, it's looking a little empty in here...</b><br><br>" + homebuild.sale.sale + " hasn't started yet, or just started! It may take a little while for results to show up while we wait for the Store to update and our volunteers begin gathering prices.";
+    $(".container:first").prepend(div);
+  }
+
+  if( homebuild.sale.end < Date.now() ){
+    let div = document.createElement("div");
+    div.setAttribute("class", "alert alert-danger");
+    div.innerHTML = "<b>That's all, folks!</b><br><br>" + homebuild.sale.sale + " ended! These are the last prices we've obtained from products participating in the sale. See you next season!";
+    $(".container:first").prepend(div);
+  }
+
+  document.title += " - " + homebuild.sale.sale;
+
   if (homebuild.featured.length > 0 && !cream.isAll(homebuild.featured, null)) cream.buildFeatured(homebuild.featured);
 
   cream.buildQueryResult(cream.recommendations, "Recommended", 0);
@@ -395,3 +411,16 @@ cream.setCurrency = currency => {
   cream.currency = localStorage.getItem("pricetag");
   history.go(0);
 };
+
+// Matomo
+var _paq = _paq || [];
+/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+  var u="//analytics.steamsal.es/";
+  _paq.push(['setTrackerUrl', u+'piwik.php']);
+  _paq.push(['setSiteId', '1']);
+  var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+  g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+})();
