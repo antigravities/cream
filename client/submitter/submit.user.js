@@ -1,7 +1,7 @@
 //// ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.3.15
+// @version      0.3.16
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -172,6 +172,12 @@
       });
     }
     else {
+      if (getQueryVariable("autoScrap") === "true") {
+        if (typeof jQuery == 'undefined') { // Reload if Steam broke
+          location.reload()
+          return;
+        }
+      }
       lambda = GM_getValue("lambda");
       key = GM_getValue("apikey");
 
@@ -201,10 +207,6 @@
         autoScrap(null);
       }
 
-      if (typeof jQuery == 'undefined') { // Reload if Steam broke
-        setTimeout(location.reload, 1000);
-        return;
-      }
       jQuery(chkbox).insertBefore(jQuery(".rightcol").children()[0]);
 
 
