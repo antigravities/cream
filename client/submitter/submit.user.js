@@ -23,17 +23,30 @@
   var key;
   var auto;
 
+  function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split('=');
+      if (decodeURIComponent(pair[0]) == variable) {
+        return decodeURIComponent(pair[1]);
+      }
+    }
+    console.log('Query variable %s not found', variable);
+    return null;
+  }
+
   function error(info) {
     if (info === undefined) info = "Cream experienced an internal error.";
 
     ShowConfirmDialog("Cream Error", info, "Close", "Reconfigure").fail(function () {
       GM_deleteValue("lambda");
       GM_deleteValue("apikey");
-      history.go(0);
+      location.reload();
     });
   }
 
-  function scrape() {
+  function scrape(callback) {
     try {
       var dialog = ShowBlockingWaitDialog("Cream", "<p id='cream_status'></p>");
       var logdiv = document.getElementById("cream_status");
@@ -67,7 +80,7 @@
           else {
             g.currency = price[0] == "$" ? "usd" : "eur";
             g.price = price[0] == "$" ? parseFloat(price.substring(1)) : parseFloat(price.replace(",", ".").substring(0, price.length-1));
-            
+
             g.oprice = i.querySelector(".search_price").innerText.trim().split("\n")[0];
 
             if( g.currency == "usd" ) g.oprice = isNaN(parseFloat(g.oprice.substring(1))) ? 0 : parseFloat(g.oprice.substring(1));
@@ -123,10 +136,18 @@
         },
         onload: function (data) {
           dialog.Dismiss();
+          console.log(data);
           try {
             var rt = JSON.parse(data.responseText);
             if (rt === "Invalid API key") error(rt);
             else ShowAlertDialog("Cream", rt.split("\n").join("<br>"));
+            if (callback !== undefined && rt.includes("0 warning")) {
+              try {
+                callback();
+              } catch (e) {
+                console.log(e);
+              }
+            }
           }
           catch (e) {
             error();
@@ -137,7 +158,7 @@
     catch (e) { console.log(e); }
   }
 
-  window.addEventListener("load", function () {
+  setTimeout(function () {
     if (GM_getValue("lambda") === undefined) {
       ShowPromptDialog("Cream", "Please enter the URL of the Cream Lambda.", "Save", "Cancel").done(function (result) {
         GM_setValue("lambda", result);
@@ -158,18 +179,32 @@
       var chkbox = document.createElement("div");
       chkbox.classList.add("block");
       chkbox.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Auto-scrape</span></span></a>";
-      chkbox.addEventListener("click", e => {
-        setInterval(() => {
+      var autoScrap = (e) => {
+        setTimeout(() => {
           jQuery = unsafeWindow.jQuery;
           jQuery(".newmodal_buttons").children().first().click();
-          jQuery("img[src='https://s3.cutie.cafe/gaben.png']").click();
-          try {
-            jQuery(".pagebtn")[1].click();
-          } catch(e){
-            history.go(0);
-          }},
-        4000);
-      });
+          scrape(() => {
+            var current_url = document.location;
+            var current_page = parseInt(getQueryVariable("page"));
+            var new_url = current_url.toString().replace("page=" + current_page, "page=" + (current_page + 1));
+            console.log(current_url, current_page, new_url);
+            if (!new_url.includes("autoScrap=true")) {
+              new_url = new_url + "&autoScrap=true";
+            }
+            console.log(new_url);
+            location.replace(new_url);
+          });
+        }, 2000);
+      };
+      chkbox.addEventListener("click", autoScrap);
+      if (getQueryVariable("autoScrap") === "true") {
+        autoScrap(null);
+      }
+
+      if (typeof jQuery == 'undefined') { // Reload if Steam broke
+        setTimeout(location.reload, 1000);
+        return;
+      }
       jQuery(chkbox).insertBefore(jQuery(".rightcol").children()[0]);
 
 
@@ -220,6 +255,8 @@
           }
         });
       });
+
+
     }
-  });
+  }, 2000);
 })();
