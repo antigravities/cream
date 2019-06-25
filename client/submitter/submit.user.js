@@ -172,6 +172,12 @@
       });
     }
     else {
+      if (getQueryVariable("autoScrap") === "true") {
+        if (typeof jQuery == 'undefined') { // Reload if Steam broke
+          setTimeout(location.reload, 1000);
+          return;
+        }
+      }
       lambda = GM_getValue("lambda");
       key = GM_getValue("apikey");
 
@@ -201,10 +207,6 @@
         autoScrap(null);
       }
 
-      if (typeof jQuery == 'undefined') { // Reload if Steam broke
-        setTimeout(location.reload, 1000);
-        return;
-      }
       jQuery(chkbox).insertBefore(jQuery(".rightcol").children()[0]);
 
 
