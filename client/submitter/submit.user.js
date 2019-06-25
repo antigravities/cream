@@ -1,7 +1,7 @@
 //// ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.3.9
+// @version      0.3.15
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -21,6 +21,7 @@
 (function () {
   var lambda;
   var key;
+  var auto;
 
   function error(info) {
     if (info === undefined) info = "Cream experienced an internal error.";
@@ -152,10 +153,32 @@
     else {
       lambda = GM_getValue("lambda");
       key = GM_getValue("apikey");
+
+      // checkbox
+      var chkbox = document.createElement("div");
+      chkbox.classList.add("block");
+      chkbox.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Auto-scrape</span></span></a>";
+      chkbox.addEventListener("click", e => {
+        setInterval(() => {
+          jQuery = unsafeWindow.jQuery;
+          jQuery(".newmodal_buttons").children().first().click();
+          jQuery("img[src='https://s3.cutie.cafe/gaben.png']").click();
+          try {
+            jQuery(".pagebtn")[1].click();
+          } catch(e){
+            history.go(0);
+          }},
+        4000);
+      });
+      jQuery(chkbox).insertBefore(jQuery(".rightcol").children()[0]);
+
+
+
+      // base elem
       var elem = document.createElement("div");
       elem.setAttribute("class", "block");
 
-      elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a><br><br><input type='checkbox' id='cream_auto' style='vertical-align: middle;'></input> Auto-run Cream on all pages in this set";
+      elem.innerHTML = "<a class='btnv6_blue_hoverfade btn_medium'><span><span style='position: relative; top: -5px;'>Submit to " + lambda.replace("https://", "").replace("http://", "") + "</span> <img src='https://s3.cutie.cafe/gaben.png' height=23 style='padding-top: 10px;'></img></span></a>";
       elem.addEventListener("click", scrape);
       jQuery(elem).insertBefore(jQuery(".rightcol").children()[0]);
 
