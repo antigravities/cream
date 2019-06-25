@@ -174,7 +174,7 @@
     else {
       if (getQueryVariable("autoScrap") === "true") {
         if (typeof jQuery == 'undefined') { // Reload if Steam broke
-          setTimeout(location.reload, 1000);
+          location.reload()
           return;
         }
       }
