@@ -68,7 +68,7 @@
 
           if( price[0] == "-" ) price = price[1] + "-1"; // negative price
 
-          if (price.indexOf("Free") > -1) price = 0.00;
+          if (price.indexOf("Free") > -1 || price.indexOf("Install") > -1 || price.indexOf("Try") > -1) price = 0.00;
           else if (price === "") price = -1;
           else if (price.indexOf("Season") > -1) price = -1; // temporary workaround for Series apps
           else if (price[0] != "$" && price[price.length-1] != "€") {
