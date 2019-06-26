@@ -1,7 +1,7 @@
 //// ==UserScript==
 // @name         Submit to Cream
 // @namespace    https://steamsal.es/
-// @version      0.3.16
+// @version      0.3.17
 // @description  Submit Steam Store searches to a Cream API server
 // @author       Cutie Cafe
 // @match        *://store.steampowered.com/search*
@@ -15,7 +15,7 @@
 // 0.2.6
 // - oops
 
-/* eslint radix: "as-needed" */
+/* eslint radix: 0 */
 /* global ShowConfirmDialog, GM_getValue, GM_setValue, GM_deleteValue, GM_xmlhttpRequest, history, ShowBlockingWaitDialog, ShowAlertDialog, ShowPromptDialog, jQuery, Logout */
 
 (function () {
@@ -66,6 +66,8 @@
           if (i.querySelector(".search_price.discounted") === null) price = i.querySelector(".search_price").innerText.trim();
           else price = i.querySelector(".search_price.discounted").innerText.split("\n")[1].trim();
 
+          if( price[0] == "-" ) price = price[1] + "-1"; // negative price
+
           if (price.indexOf("Free") > -1) price = 0.00;
           else if (price === "") price = -1;
           else if (price.indexOf("Season") > -1) price = -1; // temporary workaround for Series apps
@@ -107,8 +109,8 @@
 
           // failsafes
           if( ! g.currency ) g.currency = "usd";
-          if( ! g.oprice ) g.oprice = 0;
-          if( ! g.price ) g.price = 0;
+          if( ! g.oprice ) g.oprice = -1;
+          if( ! g.price ) g.price = -1;
 
           return g;
         });
