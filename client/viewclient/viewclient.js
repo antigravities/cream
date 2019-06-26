@@ -28,7 +28,7 @@ cream.p = (str) => {
 
 cream.formatForCurrency = (price, currency) => {
   if( currency == "eur" ){
-    return (price + "").replace(".", ",") + "€";
+    return (price + "").replace(".", ",") + "&euro;";
   } else {
     return "$" + price;
   }
